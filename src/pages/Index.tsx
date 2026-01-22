@@ -5,6 +5,9 @@ import { MetricCard } from '@/components/MetricCard';
 import { KanbanColumn } from '@/components/KanbanColumn';
 import { LeadDetailSheet } from '@/components/LeadDetailSheet';
 import { AddLeadModal } from '@/components/AddLeadModal';
+import { DashboardView } from '@/components/DashboardView';
+import { AnalyticsView } from '@/components/AnalyticsView';
+import { SettingsView } from '@/components/SettingsView';
 import { useLeads } from '@/hooks/useLeads';
 import { Lead, KANBAN_COLUMNS } from '@/types/lead';
 import { Users, TrendingUp, Bell, Loader2 } from 'lucide-react';
@@ -93,49 +96,59 @@ const Index = () => {
             </div>
           ) : (
             <>
-              {/* Metrics Dashboard */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <MetricCard
-                  title="Total no Pipeline"
-                  value={metrics.totalLeads}
-                  subtitle="leads ativos"
-                  icon={Users}
-                  iconColor="text-neon-cyan"
-                  delay={100}
-                />
-                <MetricCard
-                  title="Taxa de Conversão"
-                  value={`${metrics.conversionRate}%`}
-                  subtitle="leads fechados"
-                  icon={TrendingUp}
-                  iconColor="text-neon-purple"
-                  delay={200}
-                />
-                <MetricCard
-                  title="Próxima Ação"
-                  value={metrics.latestLead?.name || '—'}
-                  subtitle={metrics.latestLead?.company || 'Nenhum lead pendente'}
-                  icon={Bell}
-                  iconColor="text-neon-green"
-                  delay={300}
-                />
-              </div>
+              {activePage === 'dashboard' && <DashboardView leads={leads} />}
+              
+              {activePage === 'pipeline' && (
+                <>
+                  {/* Metrics Dashboard */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <MetricCard
+                      title="Total no Pipeline"
+                      value={metrics.totalLeads}
+                      subtitle="leads ativos"
+                      icon={Users}
+                      iconColor="text-neon-cyan"
+                      delay={100}
+                    />
+                    <MetricCard
+                      title="Taxa de Conversão"
+                      value={`${metrics.conversionRate}%`}
+                      subtitle="leads fechados"
+                      icon={TrendingUp}
+                      iconColor="text-neon-purple"
+                      delay={200}
+                    />
+                    <MetricCard
+                      title="Próxima Ação"
+                      value={metrics.latestLead?.name || '—'}
+                      subtitle={metrics.latestLead?.company || 'Nenhum lead pendente'}
+                      icon={Bell}
+                      iconColor="text-neon-green"
+                      delay={300}
+                    />
+                  </div>
 
-              {/* Kanban Board */}
-              <div className="flex gap-4 overflow-x-auto pb-4">
-                {KANBAN_COLUMNS.map((column, index) => (
-                  <KanbanColumn
-                    key={column.id}
-                    id={column.id}
-                    title={column.title}
-                    icon={column.icon}
-                    leads={leadsByStatus[column.id] || []}
-                    onLeadClick={handleLeadClick}
-                    onDrop={handleDrop}
-                    delay={400 + index * 100}
-                  />
-                ))}
-              </div>
+                  {/* Kanban Board */}
+                  <div className="flex gap-4 overflow-x-auto pb-4">
+                    {KANBAN_COLUMNS.map((column, index) => (
+                      <KanbanColumn
+                        key={column.id}
+                        id={column.id}
+                        title={column.title}
+                        icon={column.icon}
+                        leads={leadsByStatus[column.id] || []}
+                        onLeadClick={handleLeadClick}
+                        onDrop={handleDrop}
+                        delay={400 + index * 100}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {activePage === 'analytics' && <AnalyticsView leads={leads} />}
+              
+              {activePage === 'settings' && <SettingsView />}
             </>
           )}
         </div>
