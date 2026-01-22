@@ -8,6 +8,7 @@ import { AddLeadModal } from '@/components/AddLeadModal';
 import { DashboardView } from '@/components/DashboardView';
 import { AnalyticsView } from '@/components/AnalyticsView';
 import { SettingsView } from '@/components/SettingsView';
+import { HelpView } from '@/components/HelpView';
 import { useLeads } from '@/hooks/useLeads';
 import { Lead, KANBAN_COLUMNS } from '@/types/lead';
 import { Users, TrendingUp, Bell, Loader2 } from 'lucide-react';
@@ -72,6 +73,7 @@ const Index = () => {
               {activePage === 'dashboard' && 'Visão Geral'}
               {activePage === 'analytics' && 'Analytics'}
               {activePage === 'settings' && 'Configurações'}
+              {activePage === 'help' && 'Central de Ajuda'}
             </h2>
             <p className="text-xs text-muted-foreground font-mono">
               {new Date().toLocaleDateString('pt-BR', { 
@@ -149,6 +151,8 @@ const Index = () => {
               {activePage === 'analytics' && <AnalyticsView leads={leads} />}
               
               {activePage === 'settings' && <SettingsView />}
+
+              {activePage === 'help' && <HelpView />}
             </>
           )}
         </div>

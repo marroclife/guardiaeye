@@ -6,6 +6,7 @@ import {
   Shield,
   ChevronLeft,
   ChevronRight,
+  HelpCircle,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -19,6 +20,7 @@ const menuItems = [
   { id: 'pipeline', label: 'Pipeline', icon: Users },
   { id: 'analytics', label: 'Analytics', icon: Activity },
   { id: 'settings', label: 'Configurações', icon: Settings },
+  { id: 'help', label: 'Ajuda', icon: HelpCircle },
 ];
 
 export function Sidebar({ activePage, onPageChange }: SidebarProps) {
