@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -35,6 +36,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
     value: '',
     priority: 'medium' as LeadPriority,
     status: 'triagem' as LeadStatus,
+    obs: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -52,6 +54,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
       status: formData.status,
       ai_summary: null,
       archived: false,
+      obs: formData.obs || null,
     });
 
     setFormData({
@@ -64,6 +67,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
       value: '',
       priority: 'medium',
       status: 'triagem',
+      obs: '',
     });
     setOpen(false);
   };
@@ -179,6 +183,17 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
               onChange={(e) => setFormData({ ...formData, website: e.target.value })}
               className="bg-white/5 border-white/10 focus:border-neon-cyan"
               placeholder="www.empresa.com.br"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="obs">Observações</Label>
+            <Textarea
+              id="obs"
+              value={formData.obs}
+              onChange={(e) => setFormData({ ...formData, obs: e.target.value })}
+              className="bg-white/5 border-white/10 focus:border-neon-cyan min-h-[80px] resize-none"
+              placeholder="Notas e observações sobre o lead..."
             />
           </div>
 
