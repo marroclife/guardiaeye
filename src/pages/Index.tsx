@@ -5,6 +5,8 @@ import { MetricCard } from '@/components/MetricCard';
 import { KanbanColumn } from '@/components/KanbanColumn';
 import { LeadDetailSheet } from '@/components/LeadDetailSheet';
 import { AddLeadModal } from '@/components/AddLeadModal';
+import { EditLeadModal } from '@/components/EditLeadModal';
+import { ArchivedLeadsSheet } from '@/components/ArchivedLeadsSheet';
 import { DashboardView } from '@/components/DashboardView';
 import { AnalyticsView } from '@/components/AnalyticsView';
 import { SettingsView } from '@/components/SettingsView';
@@ -17,6 +19,7 @@ const Index = () => {
   const [activePage, setActivePage] = useState('pipeline');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const {
     leads,
@@ -24,32 +27,39 @@ const Index = () => {
     isConnected,
     updateLeadStatus,
     updateLead,
-    deleteLead,
+    archiveLead,
+    unarchiveLead,
+    permanentlyDeleteLead,
+    analyzeLeadWithAI,
     createLead,
   } = useLeads();
+
+  // Separate active and archived leads
+  const activeLeads = useMemo(() => leads.filter(l => !l.archived), [leads]);
+  const archivedLeads = useMemo(() => leads.filter(l => l.archived), [leads]);
 
   // Group leads by status
   const leadsByStatus = useMemo(() => {
     const grouped: Record<string, Lead[]> = {};
     KANBAN_COLUMNS.forEach((col) => {
-      grouped[col.id] = leads.filter((lead) => lead.status === col.id);
+      grouped[col.id] = activeLeads.filter((lead) => lead.status === col.id);
     });
     return grouped;
-  }, [leads]);
+  }, [activeLeads]);
 
   // Calculate metrics
   const metrics = useMemo(() => {
-    const totalLeads = leads.length;
-    const closedLeads = leads.filter((l) => l.status === 'fechado').length;
+    const totalLeads = activeLeads.length;
+    const closedLeads = activeLeads.filter((l) => l.status === 'fechado').length;
     const conversionRate = totalLeads > 0 ? Math.round((closedLeads / totalLeads) * 100) : 0;
-    const latestLead = leads[0];
+    const latestLead = activeLeads[0];
     
     return {
       totalLeads,
       conversionRate,
       latestLead,
     };
-  }, [leads]);
+  }, [activeLeads]);
 
   const handleLeadClick = (lead: Lead) => {
     setSelectedLead(lead);
@@ -58,6 +68,15 @@ const Index = () => {
 
   const handleDrop = (leadId: string, newStatus: Lead['status']) => {
     updateLeadStatus(leadId, newStatus);
+  };
+
+  const handleEditLead = (lead: Lead) => {
+    setSelectedLead(lead);
+    setEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async (leadId: string, updates: Partial<Lead>) => {
+    await updateLead(leadId, updates);
   };
 
   return (
@@ -85,6 +104,11 @@ const Index = () => {
             </p>
           </div>
           <div className="flex items-center gap-4">
+            <ArchivedLeadsSheet
+              archivedLeads={archivedLeads}
+              onUnarchive={unarchiveLead}
+              onPermanentDelete={permanentlyDeleteLead}
+            />
             <SystemStatus isConnected={isConnected} />
             <AddLeadModal onAdd={createLead} />
           </div>
@@ -98,7 +122,7 @@ const Index = () => {
             </div>
           ) : (
             <>
-              {activePage === 'dashboard' && <DashboardView leads={leads} />}
+              {activePage === 'dashboard' && <DashboardView leads={activeLeads} />}
               
               {activePage === 'pipeline' && (
                 <>
@@ -148,7 +172,7 @@ const Index = () => {
                 </>
               )}
 
-              {activePage === 'analytics' && <AnalyticsView leads={leads} />}
+              {activePage === 'analytics' && <AnalyticsView leads={activeLeads} />}
               
               {activePage === 'settings' && <SettingsView />}
 
@@ -163,8 +187,18 @@ const Index = () => {
         lead={selectedLead}
         open={sheetOpen}
         onOpenChange={setSheetOpen}
-        onDelete={deleteLead}
+        onArchive={archiveLead}
         onUpdate={updateLead}
+        onEdit={handleEditLead}
+        onAnalyze={analyzeLeadWithAI}
+      />
+
+      {/* Edit Lead Modal */}
+      <EditLeadModal
+        lead={selectedLead}
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        onSave={handleSaveEdit}
       />
     </div>
   );

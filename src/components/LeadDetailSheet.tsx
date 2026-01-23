@@ -15,10 +15,11 @@ import {
   Globe,
   Archive,
   Pencil,
-  Calendar,
   ExternalLink,
   Terminal,
   Briefcase,
+  Loader2,
+  Sparkles,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -26,8 +27,10 @@ interface LeadDetailSheetProps {
   lead: Lead | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onDelete: (leadId: string) => void;
+  onArchive: (leadId: string) => void;
   onUpdate: (leadId: string, updates: Partial<Lead>) => void;
+  onEdit: (lead: Lead) => void;
+  onAnalyze: (lead: Lead) => Promise<string | null>;
 }
 
 const priorityConfig: Record<LeadPriority, { label: string; className: string }> = {
@@ -40,9 +43,13 @@ export function LeadDetailSheet({
   lead,
   open,
   onOpenChange,
-  onDelete,
+  onArchive,
+  onEdit,
+  onAnalyze,
 }: LeadDetailSheetProps) {
   const [activeTab, setActiveTab] = useState('dados');
+  const [analyzing, setAnalyzing] = useState(false);
+  const [currentAnalysis, setCurrentAnalysis] = useState<string | null>(null);
 
   if (!lead) return null;
 
@@ -63,6 +70,21 @@ export function LeadDetailSheet({
       minute: '2-digit',
     }).format(new Date(date));
   };
+
+  const handleAnalyze = async () => {
+    setAnalyzing(true);
+    setCurrentAnalysis(null);
+    try {
+      const analysis = await onAnalyze(lead);
+      if (analysis) {
+        setCurrentAnalysis(analysis);
+      }
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const displayAnalysis = currentAnalysis || lead.ai_summary;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -139,16 +161,41 @@ export function LeadDetailSheet({
 
           <TabsContent value="analise" className="mt-6">
             <div className="glass-card p-4 rounded-lg border border-white/5">
-              <div className="flex items-center gap-2 mb-3 text-neon-green">
-                <Terminal className="w-4 h-4" />
-                <span className="font-mono text-xs uppercase tracking-wider">
-                  Guardian Analysis
-                </span>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 text-neon-green">
+                  <Terminal className="w-4 h-4" />
+                  <span className="font-mono text-xs uppercase tracking-wider">
+                    Guardian Analysis
+                  </span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleAnalyze}
+                  disabled={analyzing}
+                  className="border-neon-purple/50 text-neon-purple hover:bg-neon-purple/10 gap-2"
+                >
+                  {analyzing ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3.5 h-3.5" />
+                  )}
+                  {analyzing ? 'Analisando...' : displayAnalysis ? 'Reanalisar' : 'Gerar Análise'}
+                </Button>
               </div>
-              <div className="terminal-text min-h-[200px] whitespace-pre-wrap">
-                {lead.ai_summary || (
+              
+              <div className="terminal-text min-h-[200px] whitespace-pre-wrap text-sm">
+                {analyzing ? (
+                  <div className="flex flex-col items-center justify-center h-[200px] text-muted-foreground">
+                    <Loader2 className="w-8 h-8 animate-spin text-neon-purple mb-3" />
+                    <p className="text-sm">Processando análise com IA...</p>
+                    <p className="text-xs mt-1 opacity-60">Isso pode levar alguns segundos</p>
+                  </div>
+                ) : displayAnalysis ? (
+                  <span className="text-foreground/90">{displayAnalysis}</span>
+                ) : (
                   <span className="text-muted-foreground opacity-50">
-                    {`> Aguardando análise do sistema...\n> Nenhum relatório disponível.\n> Execute scan via n8n para gerar dossiê.`}
+                    {`> Aguardando análise do sistema...\n> Nenhum relatório disponível.\n> Clique em "Gerar Análise" para criar o dossiê.`}
                   </span>
                 )}
               </div>
@@ -159,24 +206,19 @@ export function LeadDetailSheet({
             <Button
               variant="outline"
               className="w-full justify-start gap-3 h-12 border-white/10 hover:bg-white/5 hover:border-neon-cyan/50"
-              onClick={() => {/* TODO: Edit modal */}}
+              onClick={() => {
+                onEdit(lead);
+                onOpenChange(false);
+              }}
             >
               <Pencil className="w-4 h-4 text-neon-cyan" />
               Editar Lead
             </Button>
             <Button
               variant="outline"
-              className="w-full justify-start gap-3 h-12 border-white/10 hover:bg-white/5 hover:border-neon-purple/50"
-              onClick={() => {/* TODO: Schedule modal */}}
-            >
-              <Calendar className="w-4 h-4 text-neon-purple" />
-              Agendar Reunião
-            </Button>
-            <Button
-              variant="outline"
               className="w-full justify-start gap-3 h-12 border-white/10 hover:bg-destructive/10 hover:border-destructive/50 hover:text-destructive"
               onClick={() => {
-                onDelete(lead.id);
+                onArchive(lead.id);
                 onOpenChange(false);
               }}
             >

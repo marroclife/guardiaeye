@@ -17,6 +17,7 @@ export type Database = {
       leads: {
         Row: {
           ai_summary: string | null
+          archived: boolean
           company: string | null
           created_at: string
           email: string | null
@@ -32,6 +33,7 @@ export type Database = {
         }
         Insert: {
           ai_summary?: string | null
+          archived?: boolean
           company?: string | null
           created_at?: string
           email?: string | null
@@ -47,6 +49,7 @@ export type Database = {
         }
         Update: {
           ai_summary?: string | null
+          archived?: boolean
           company?: string | null
           created_at?: string
           email?: string | null

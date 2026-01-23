@@ -68,6 +68,7 @@ export function useLeads() {
         ...lead,
         status: lead.status as LeadStatus,
         priority: lead.priority as Lead['priority'],
+        archived: lead.archived ?? false,
       }));
       
       setLeads(typedLeads);
@@ -108,7 +109,37 @@ export function useLeads() {
     }
   }
 
-  async function deleteLead(leadId: string) {
+  async function archiveLead(leadId: string) {
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .update({ archived: true })
+        .eq('id', leadId);
+
+      if (error) throw error;
+      toast.success('Lead arquivado');
+    } catch (error) {
+      console.error('Error archiving lead:', error);
+      toast.error('Erro ao arquivar lead');
+    }
+  }
+
+  async function unarchiveLead(leadId: string) {
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .update({ archived: false })
+        .eq('id', leadId);
+
+      if (error) throw error;
+      toast.success('Lead restaurado!');
+    } catch (error) {
+      console.error('Error unarchiving lead:', error);
+      toast.error('Erro ao restaurar lead');
+    }
+  }
+
+  async function permanentlyDeleteLead(leadId: string) {
     try {
       const { error } = await supabase
         .from('leads')
@@ -116,10 +147,38 @@ export function useLeads() {
         .eq('id', leadId);
 
       if (error) throw error;
-      toast.success('Lead arquivado');
+      toast.success('Lead excluído permanentemente');
     } catch (error) {
       console.error('Error deleting lead:', error);
-      toast.error('Erro ao arquivar lead');
+      toast.error('Erro ao excluir lead');
+    }
+  }
+
+  async function analyzeLeadWithAI(lead: Lead): Promise<string | null> {
+    try {
+      const response = await supabase.functions.invoke('analyze-lead', {
+        body: { lead },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      const analysis = response.data?.analysis;
+      
+      if (analysis) {
+        // Save the analysis to the lead
+        await supabase
+          .from('leads')
+          .update({ ai_summary: analysis })
+          .eq('id', lead.id);
+      }
+
+      return analysis;
+    } catch (error) {
+      console.error('Error analyzing lead:', error);
+      toast.error('Erro ao analisar lead com IA');
+      return null;
     }
   }
 
@@ -143,7 +202,10 @@ export function useLeads() {
     isConnected,
     updateLeadStatus,
     updateLead,
-    deleteLead,
+    archiveLead,
+    unarchiveLead,
+    permanentlyDeleteLead,
+    analyzeLeadWithAI,
     createLead,
     refetch: fetchLeads,
   };
