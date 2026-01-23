@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -36,6 +37,7 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
     value: '',
     priority: 'medium' as LeadPriority,
     status: 'triagem' as LeadStatus,
+    obs: '',
   });
   const [saving, setSaving] = useState(false);
 
@@ -51,6 +53,7 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
         value: lead.value?.toString() || '',
         priority: lead.priority || 'medium',
         status: lead.status || 'triagem',
+        obs: lead.obs || '',
       });
     }
   }, [lead]);
@@ -71,6 +74,7 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
         value: formData.value ? parseFloat(formData.value) : null,
         priority: formData.priority,
         status: formData.status,
+        obs: formData.obs || null,
       });
       onOpenChange(false);
     } finally {
@@ -200,6 +204,16 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm text-muted-foreground">Observações</Label>
+            <Textarea
+              value={formData.obs}
+              onChange={(e) => setFormData(prev => ({ ...prev, obs: e.target.value }))}
+              className="bg-white/5 border-white/10 focus:border-neon-cyan min-h-[80px] resize-none"
+              placeholder="Notas e observações sobre o lead..."
+            />
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-white/10">

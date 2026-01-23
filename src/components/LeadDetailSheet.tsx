@@ -20,6 +20,7 @@ import {
   Briefcase,
   Loader2,
   Sparkles,
+  FileText,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -156,6 +157,17 @@ export function LeadDetailSheet({
                 }).format(lead.value)}
                 highlight
               />
+            )}
+            {lead.obs && (
+              <div className="pt-3 border-t border-white/5">
+                <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                  <FileText className="w-4 h-4" />
+                  <span className="text-sm">Observações</span>
+                </div>
+                <p className="text-sm text-foreground/80 whitespace-pre-wrap bg-white/5 p-3 rounded-lg">
+                  {lead.obs}
+                </p>
+              </div>
             )}
           </TabsContent>
 
