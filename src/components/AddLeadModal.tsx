@@ -51,6 +51,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
       priority: formData.priority,
       status: formData.status,
       ai_summary: null,
+      archived: false,
     });
 
     setFormData({

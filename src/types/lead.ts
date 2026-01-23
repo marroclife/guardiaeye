@@ -15,6 +15,7 @@ export interface Lead {
   value: number | null;
   priority: LeadPriority;
   updated_at: string;
+  archived: boolean;
 }
 
 export const KANBAN_COLUMNS: { id: LeadStatus; title: string; icon: string }[] = [
