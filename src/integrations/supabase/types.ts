@@ -22,11 +22,13 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          last_contact_at: string | null
           name: string
           obs: string | null
           phone: string | null
           priority: string | null
           role: string | null
+          source: string | null
           status: string
           updated_at: string
           value: number | null
@@ -39,11 +41,13 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          last_contact_at?: string | null
           name: string
           obs?: string | null
           phone?: string | null
           priority?: string | null
           role?: string | null
+          source?: string | null
           status?: string
           updated_at?: string
           value?: number | null
@@ -56,11 +60,13 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          last_contact_at?: string | null
           name?: string
           obs?: string | null
           phone?: string | null
           priority?: string | null
           role?: string | null
+          source?: string | null
           status?: string
           updated_at?: string
           value?: number | null

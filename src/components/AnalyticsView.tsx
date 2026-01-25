@@ -1,4 +1,4 @@
-import { Lead } from '@/types/lead';
+import { Lead, KANBAN_COLUMNS } from '@/types/lead';
 import { BarChart3, PieChart, TrendingUp, Calendar } from 'lucide-react';
 
 interface AnalyticsViewProps {
@@ -12,18 +12,28 @@ export function AnalyticsView({ leads }: AnalyticsViewProps) {
   const totalValue = leads.reduce((acc, l) => acc + (l.value || 0), 0);
   const avgValue = totalLeads > 0 ? Math.round(totalValue / totalLeads) : 0;
 
-  const statusDistribution = [
-    { status: 'Triagem', count: leads.filter(l => l.status === 'triagem').length, color: 'bg-neon-cyan' },
-    { status: 'Qualificados', count: leads.filter(l => l.status === 'qualificado').length, color: 'bg-neon-purple' },
-    { status: 'Em Proposta', count: leads.filter(l => l.status === 'proposta').length, color: 'bg-yellow-500' },
-    { status: 'Fechados', count: closedLeads, color: 'bg-neon-green' },
-  ];
+  // Generate status distribution from KANBAN_COLUMNS
+  const statusDistribution = KANBAN_COLUMNS.map((col, index) => ({
+    status: col.title,
+    count: leads.filter(l => l.status === col.id).length,
+    color: index === 0 ? 'bg-neon-cyan' : 
+           index === 1 ? 'bg-blue-500' :
+           index === 2 ? 'bg-orange-500' :
+           index === 3 ? 'bg-yellow-500' :
+           index === 4 ? 'bg-purple-500' : 'bg-neon-green',
+  }));
 
   const priorityDistribution = [
-    { priority: 'Alta', count: leads.filter(l => l.priority === 'high').length, color: 'text-red-400' },
+    { priority: 'Alta', count: leads.filter(l => l.priority === 'high').length, color: 'text-destructive' },
     { priority: 'Média', count: leads.filter(l => l.priority === 'medium').length, color: 'text-yellow-400' },
-    { priority: 'Baixa', count: leads.filter(l => l.priority === 'low').length, color: 'text-green-400' },
+    { priority: 'Baixa', count: leads.filter(l => l.priority === 'low').length, color: 'text-neon-green' },
   ];
+
+  // Calculate value by status
+  const valueByStatus = KANBAN_COLUMNS.map(col => ({
+    status: col.title,
+    value: leads.filter(l => l.status === col.id).reduce((acc, l) => acc + (l.value || 0), 0),
+  })).filter(v => v.value > 0);
 
   return (
     <div className="space-y-8">
@@ -79,11 +89,31 @@ export function AnalyticsView({ leads }: AnalyticsViewProps) {
         </div>
       </div>
 
+      {/* Valor por Etapa */}
+      {valueByStatus.length > 0 && (
+        <div className="glass-card p-6 rounded-lg border border-white/10 boot-fade-in" style={{ animationDelay: '300ms' }}>
+          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-neon-green" />
+            Valor por Etapa
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {valueByStatus.map((item) => (
+              <div key={item.status} className="text-center p-4 rounded-lg bg-white/5">
+                <p className="text-xl font-bold font-mono text-neon-green">
+                  R$ {item.value.toLocaleString('pt-BR')}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">{item.status}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Distribuição por Prioridade */}
       <div className="glass-card p-6 rounded-lg border border-white/10 boot-fade-in" style={{ animationDelay: '400ms' }}>
         <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
           <PieChart className="w-5 h-5 text-neon-cyan" />
-          Distribuição por Prioridade
+          Distribuição por Temperatura
         </h3>
         <div className="grid grid-cols-3 gap-4">
           {priorityDistribution.map((item) => (
