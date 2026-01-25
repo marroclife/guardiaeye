@@ -1,4 +1,4 @@
-import { Lead, LeadPriority } from '@/types/lead';
+import { Lead, LeadPriority, LEAD_SOURCES, getDaysSinceContact } from '@/types/lead';
 import {
   Sheet,
   SheetContent,
@@ -21,6 +21,9 @@ import {
   Loader2,
   Sparkles,
   FileText,
+  Clock,
+  Tag,
+  RefreshCw,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -32,6 +35,7 @@ interface LeadDetailSheetProps {
   onUpdate: (leadId: string, updates: Partial<Lead>) => void;
   onEdit: (lead: Lead) => void;
   onAnalyze: (lead: Lead) => Promise<string | null>;
+  onUpdateLastContact?: (leadId: string) => void;
 }
 
 const priorityConfig: Record<LeadPriority, { label: string; className: string }> = {
@@ -47,6 +51,7 @@ export function LeadDetailSheet({
   onArchive,
   onEdit,
   onAnalyze,
+  onUpdateLastContact,
 }: LeadDetailSheetProps) {
   const [activeTab, setActiveTab] = useState('dados');
   const [analyzing, setAnalyzing] = useState(false);
@@ -55,6 +60,8 @@ export function LeadDetailSheet({
   if (!lead) return null;
 
   const priority = priorityConfig[lead.priority || 'medium'];
+  const source = LEAD_SOURCES.find(s => s.id === lead.source);
+  const daysSince = getDaysSinceContact(lead);
 
   const formatWhatsAppUrl = (phone: string | null) => {
     if (!phone) return null;
@@ -72,6 +79,14 @@ export function LeadDetailSheet({
     }).format(new Date(date));
   };
 
+  const formatShortDate = (date: string) => {
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+    }).format(new Date(date));
+  };
+
   const handleAnalyze = async () => {
     setAnalyzing(true);
     setCurrentAnalysis(null);
@@ -82,6 +97,12 @@ export function LeadDetailSheet({
       }
     } finally {
       setAnalyzing(false);
+    }
+  };
+
+  const handleMarkContact = () => {
+    if (onUpdateLastContact) {
+      onUpdateLastContact(lead.id);
     }
   };
 
@@ -107,9 +128,19 @@ export function LeadDetailSheet({
               {priority.label}
             </span>
           </div>
-          <p className="text-xs text-muted-foreground font-mono mt-3">
-            ID: {lead.id.slice(0, 8)} • Criado em {formatDate(lead.created_at)}
-          </p>
+          <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+            <span className="font-mono">ID: {lead.id.slice(0, 8)}</span>
+            {source && (
+              <span className="flex items-center gap-1">
+                <Tag className="w-3 h-3" />
+                {source.icon} {source.label}
+              </span>
+            )}
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {daysSince}d atrás
+            </span>
+          </div>
         </SheetHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
@@ -147,6 +178,8 @@ export function LeadDetailSheet({
                 href: lead.website.startsWith('http') ? lead.website : `https://${lead.website}`,
               } : undefined}
             />
+            <InfoRow icon={Tag} label="Origem" value={source ? `${source.icon} ${source.label}` : null} />
+            <InfoRow icon={Clock} label="Último Contato" value={formatShortDate(lead.last_contact_at)} />
             {lead.value && (
               <InfoRow 
                 icon={Building2} 
@@ -215,6 +248,16 @@ export function LeadDetailSheet({
           </TabsContent>
 
           <TabsContent value="acoes" className="mt-6 space-y-3">
+            {onUpdateLastContact && (
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-3 h-12 border-white/10 hover:bg-white/5 hover:border-neon-green/50"
+                onClick={handleMarkContact}
+              >
+                <RefreshCw className="w-4 h-4 text-neon-green" />
+                Marcar Contato Realizado
+              </Button>
+            )}
             <Button
               variant="outline"
               className="w-full justify-start gap-3 h-12 border-white/10 hover:bg-white/5 hover:border-neon-cyan/50"

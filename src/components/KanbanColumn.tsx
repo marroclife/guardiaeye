@@ -1,10 +1,12 @@
 import { Lead, LeadStatus } from '@/types/lead';
 import { LeadCard } from './LeadCard';
+import { cn } from '@/lib/utils';
 
 interface KanbanColumnProps {
   id: LeadStatus;
   title: string;
   icon: string;
+  color?: string;
   leads: Lead[];
   onLeadClick: (lead: Lead) => void;
   onDrop: (leadId: string, newStatus: LeadStatus) => void;
@@ -15,6 +17,7 @@ export function KanbanColumn({
   id,
   title,
   icon,
+  color,
   leads,
   onLeadClick,
   onDrop,
@@ -43,25 +46,39 @@ export function KanbanColumn({
     e.dataTransfer.effectAllowed = 'move';
   };
 
+  // Calculate column stats
+  const totalValue = leads.reduce((acc, l) => acc + (l.value || 0), 0);
+  const hasValue = totalValue > 0;
+
   return (
     <div
-      className="flex flex-col min-w-[300px] w-[300px] boot-fade-in"
+      className="flex flex-col min-w-[280px] w-[280px] md:min-w-[300px] md:w-[300px] boot-fade-in"
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Column Header */}
-      <div className="glass-card px-4 py-3 mb-4 flex items-center justify-between">
+      <div className={cn(
+        'glass-card px-3 py-2.5 mb-3 flex items-center justify-between border-l-2',
+        color || 'border-white/20'
+      )}>
         <div className="flex items-center gap-2">
-          <span className="text-lg">{icon}</span>
-          <h3 className="font-medium text-foreground">{title}</h3>
+          <span className="text-base">{icon}</span>
+          <h3 className="font-medium text-foreground text-sm">{title}</h3>
         </div>
-        <span className="font-mono text-xs px-2 py-1 bg-white/5 rounded-full text-muted-foreground">
-          {leads.length}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs px-2 py-0.5 bg-white/5 rounded-full text-muted-foreground">
+            {leads.length}
+          </span>
+          {hasValue && (
+            <span className="font-mono text-xs text-neon-green hidden md:block">
+              R$ {totalValue.toLocaleString('pt-BR')}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Cards Container */}
       <div
-        className="flex-1 min-h-[400px] rounded-xl border border-white/5 p-3 transition-colors duration-200"
+        className="flex-1 min-h-[300px] md:min-h-[400px] rounded-xl border border-white/5 p-2 md:p-3 transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-280px)]"
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -77,7 +94,7 @@ export function KanbanColumn({
         ))}
         
         {leads.length === 0 && (
-          <div className="flex items-center justify-center h-32 text-muted-foreground text-sm border border-dashed border-white/10 rounded-lg">
+          <div className="flex items-center justify-center h-24 text-muted-foreground text-xs border border-dashed border-white/10 rounded-lg">
             Arraste leads aqui
           </div>
         )}

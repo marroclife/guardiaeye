@@ -1,5 +1,6 @@
-import { Lead, LeadPriority } from '@/types/lead';
-import { Building2, DollarSign } from 'lucide-react';
+import { Lead, LeadPriority, LEAD_SOURCES, isLeadStale, getDaysSinceContact } from '@/types/lead';
+import { Building2, DollarSign, Clock, AlertTriangle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface LeadCardProps {
   lead: Lead;
@@ -15,6 +16,9 @@ const priorityConfig: Record<LeadPriority, { label: string; className: string }>
 
 export function LeadCard({ lead, onClick, isDragging }: LeadCardProps) {
   const priority = priorityConfig[lead.priority || 'medium'];
+  const source = LEAD_SOURCES.find(s => s.id === lead.source);
+  const stale = isLeadStale(lead);
+  const daysSince = getDaysSinceContact(lead);
   
   const formatValue = (value: number | null) => {
     if (!value) return null;
@@ -25,14 +29,23 @@ export function LeadCard({ lead, onClick, isDragging }: LeadCardProps) {
     }).format(value);
   };
 
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  };
+
   return (
     <div
       onClick={onClick}
-      className={`kanban-card p-4 mb-3 ${isDragging ? 'dragging' : ''}`}
+      className={cn(
+        'kanban-card p-4 mb-3',
+        isDragging && 'dragging',
+        stale && 'border-orange-500/50 bg-orange-500/5'
+      )}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-3">
-        <h4 className="font-medium text-foreground truncate flex-1 mr-2">
+      <div className="flex items-start justify-between mb-2">
+        <h4 className="font-medium text-foreground truncate flex-1 mr-2 text-sm">
           {lead.name}
         </h4>
         <span className={`px-2 py-0.5 rounded text-xs font-mono ${priority.className}`}>
@@ -42,26 +55,44 @@ export function LeadCard({ lead, onClick, isDragging }: LeadCardProps) {
 
       {/* Company */}
       {lead.company && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-          <Building2 className="w-3.5 h-3.5 text-neon-cyan" />
+        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1.5">
+          <Building2 className="w-3 h-3 text-neon-cyan" />
           <span className="truncate">{lead.company}</span>
         </div>
       )}
 
+      {/* Source Badge */}
+      {source && (
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5">
+          <span>{source.icon}</span>
+          <span>{source.label}</span>
+        </div>
+      )}
+
       {/* Value */}
-      {lead.value && (
-        <div className="flex items-center gap-2">
-          <DollarSign className="w-3.5 h-3.5 text-neon-green" />
-          <span className="font-mono text-sm text-neon-green">
+      {lead.value && lead.value > 0 && (
+        <div className="flex items-center gap-2 mb-1.5">
+          <DollarSign className="w-3 h-3 text-neon-green" />
+          <span className="font-mono text-xs text-neon-green">
             {formatValue(lead.value)}
           </span>
         </div>
       )}
 
-      {/* Role if no company/value */}
-      {!lead.company && !lead.value && lead.role && (
-        <p className="text-sm text-muted-foreground truncate">{lead.role}</p>
-      )}
+      {/* Footer - Last Contact & Stale Warning */}
+      <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Clock className="w-3 h-3" />
+          <span>{formatDate(lead.last_contact_at)}</span>
+        </div>
+        
+        {stale && (
+          <div className="flex items-center gap-1 text-xs text-orange-400">
+            <AlertTriangle className="w-3 h-3" />
+            <span>{daysSince}d</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

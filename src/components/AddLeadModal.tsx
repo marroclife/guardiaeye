@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Lead, LeadPriority, LeadStatus } from '@/types/lead';
+import { Lead, LeadPriority, LeadStatus, LeadSource, LEAD_SOURCES } from '@/types/lead';
 import {
   Dialog,
   DialogContent,
@@ -36,6 +36,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
     value: '',
     priority: 'medium' as LeadPriority,
     status: 'triagem' as LeadStatus,
+    source: 'manual' as LeadSource,
     obs: '',
   });
 
@@ -52,9 +53,11 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
       value: formData.value ? parseFloat(formData.value) : null,
       priority: formData.priority,
       status: formData.status,
+      source: formData.source,
       ai_summary: null,
       archived: false,
       obs: formData.obs || null,
+      last_contact_at: new Date().toISOString(),
     });
 
     setFormData({
@@ -67,6 +70,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
       value: '',
       priority: 'medium',
       status: 'triagem',
+      source: 'manual',
       obs: '',
     });
     setOpen(false);
@@ -80,7 +84,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
           Novo Lead
         </Button>
       </DialogTrigger>
-      <DialogContent className="glass-card border-white/10 bg-black/95 backdrop-blur-xl sm:max-w-md">
+      <DialogContent className="glass-card border-white/10 bg-black/95 backdrop-blur-xl sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Adicionar Lead</DialogTitle>
         </DialogHeader>
@@ -110,14 +114,22 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="role">Cargo</Label>
-              <Input
-                id="role"
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                className="bg-white/5 border-white/10 focus:border-neon-cyan"
-                placeholder="Cargo"
-              />
+              <Label htmlFor="source">Origem</Label>
+              <Select
+                value={formData.source}
+                onValueChange={(value: LeadSource) => setFormData({ ...formData, source: value })}
+              >
+                <SelectTrigger className="bg-white/5 border-white/10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-black/95 border-white/10">
+                  {LEAD_SOURCES.map((source) => (
+                    <SelectItem key={source.id} value={source.id}>
+                      {source.icon} {source.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

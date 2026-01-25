@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Lead, LeadStatus } from '@/types/lead';
+import { Lead, LeadStatus, LeadSource, STALE_LEAD_DAYS } from '@/types/lead';
 import { toast } from 'sonner';
 
 export function useLeads() {
@@ -26,8 +26,8 @@ export function useLeads() {
         },
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            const newLead = payload.new as Lead;
-            setLeads((prev) => [...prev, newLead]);
+            const newLead = mapDbToLead(payload.new);
+            setLeads((prev) => [newLead, ...prev]);
             toast.success('Novo lead detectado!', {
               description: `${newLead.name} entrou no sistema`,
               className: 'bg-black/90 border-neon-cyan/50 text-white',
@@ -35,7 +35,7 @@ export function useLeads() {
           } else if (payload.eventType === 'UPDATE') {
             setLeads((prev) =>
               prev.map((lead) =>
-                lead.id === payload.new.id ? (payload.new as Lead) : lead
+                lead.id === payload.new.id ? mapDbToLead(payload.new) : lead
               )
             );
           } else if (payload.eventType === 'DELETE') {
@@ -54,6 +54,18 @@ export function useLeads() {
     };
   }, []);
 
+  // Map database row to Lead type
+  function mapDbToLead(row: any): Lead {
+    return {
+      ...row,
+      status: row.status as LeadStatus,
+      priority: (row.priority || 'medium') as Lead['priority'],
+      source: (row.source || 'manual') as LeadSource,
+      archived: row.archived ?? false,
+      last_contact_at: row.last_contact_at || row.updated_at || row.created_at,
+    };
+  }
+
   async function fetchLeads() {
     try {
       const { data, error } = await supabase
@@ -63,14 +75,7 @@ export function useLeads() {
 
       if (error) throw error;
       
-      // Cast the data to Lead type with proper typing
-      const typedLeads = (data || []).map(lead => ({
-        ...lead,
-        status: lead.status as LeadStatus,
-        priority: lead.priority as Lead['priority'],
-        archived: lead.archived ?? false,
-      }));
-      
+      const typedLeads = (data || []).map(mapDbToLead);
       setLeads(typedLeads);
     } catch (error) {
       console.error('Error fetching leads:', error);
@@ -106,6 +111,19 @@ export function useLeads() {
     } catch (error) {
       console.error('Error updating lead:', error);
       toast.error('Erro ao atualizar lead');
+    }
+  }
+
+  async function updateLastContact(leadId: string) {
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .update({ last_contact_at: new Date().toISOString() })
+        .eq('id', leadId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating last contact:', error);
     }
   }
 
@@ -167,7 +185,6 @@ export function useLeads() {
       const analysis = response.data?.analysis;
       
       if (analysis) {
-        // Save the analysis to the lead
         await supabase
           .from('leads')
           .update({ ai_summary: analysis })
@@ -186,7 +203,10 @@ export function useLeads() {
     try {
       const { error } = await supabase
         .from('leads')
-        .insert([lead]);
+        .insert([{
+          ...lead,
+          last_contact_at: new Date().toISOString(),
+        }]);
 
       if (error) throw error;
       toast.success('Lead criado com sucesso!');
@@ -196,17 +216,52 @@ export function useLeads() {
     }
   }
 
+  // Process stale leads - move to "sem_resposta" if inactive for X days
+  const processStaleLeads = useCallback(async () => {
+    const staleDate = new Date();
+    staleDate.setDate(staleDate.getDate() - STALE_LEAD_DAYS);
+    
+    const staleLeads = leads.filter(lead => {
+      const lastContact = new Date(lead.last_contact_at);
+      const isStale = lastContact < staleDate;
+      const eligibleStatuses: LeadStatus[] = ['triagem', 'em_contato'];
+      return isStale && eligibleStatuses.includes(lead.status) && !lead.archived;
+    });
+
+    if (staleLeads.length === 0) return 0;
+
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .update({ status: 'sem_resposta' as LeadStatus })
+        .in('id', staleLeads.map(l => l.id));
+
+      if (error) throw error;
+      
+      toast.info(`${staleLeads.length} lead(s) movido(s) para "Sem Resposta"`, {
+        description: 'Leads inativos há mais de 3 dias',
+      });
+      
+      return staleLeads.length;
+    } catch (error) {
+      console.error('Error processing stale leads:', error);
+      return 0;
+    }
+  }, [leads]);
+
   return {
     leads,
     loading,
     isConnected,
     updateLeadStatus,
     updateLead,
+    updateLastContact,
     archiveLead,
     unarchiveLead,
     permanentlyDeleteLead,
     analyzeLeadWithAI,
     createLead,
+    processStaleLeads,
     refetch: fetchLeads,
   };
 }

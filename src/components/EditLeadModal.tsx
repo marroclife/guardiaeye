@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Lead, LeadPriority, LeadStatus } from '@/types/lead';
+import { Lead, LeadPriority, LeadStatus, LeadSource, LEAD_SOURCES, KANBAN_COLUMNS } from '@/types/lead';
 import {
   Dialog,
   DialogContent,
@@ -37,6 +37,7 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
     value: '',
     priority: 'medium' as LeadPriority,
     status: 'triagem' as LeadStatus,
+    source: 'manual' as LeadSource,
     obs: '',
   });
   const [saving, setSaving] = useState(false);
@@ -53,6 +54,7 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
         value: lead.value?.toString() || '',
         priority: lead.priority || 'medium',
         status: lead.status || 'triagem',
+        source: lead.source || 'manual',
         obs: lead.obs || '',
       });
     }
@@ -74,6 +76,7 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
         value: formData.value ? parseFloat(formData.value) : null,
         priority: formData.priority,
         status: formData.status,
+        source: formData.source,
         obs: formData.obs || null,
       });
       onOpenChange(false);
@@ -86,7 +89,7 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg glass-card border-white/10 bg-black/95 backdrop-blur-xl">
+      <DialogContent className="sm:max-w-lg glass-card border-white/10 bg-black/95 backdrop-blur-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
             <span className="text-neon-cyan">✎</span> Editar Lead
@@ -118,15 +121,6 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="role" className="text-sm text-muted-foreground">Cargo</Label>
-              <Input
-                id="role"
-                value={formData.role}
-                onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                className="bg-white/5 border-white/10 focus:border-neon-cyan"
-              />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="phone" className="text-sm text-muted-foreground">WhatsApp</Label>
               <Input
                 id="phone"
@@ -136,9 +130,6 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
                 placeholder="+55 11 99999-9999"
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
               <Input
@@ -148,6 +139,27 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
                 onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                 className="bg-white/5 border-white/10 focus:border-neon-cyan"
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-sm text-muted-foreground">Origem</Label>
+              <Select
+                value={formData.source}
+                onValueChange={(value: LeadSource) => setFormData(prev => ({ ...prev, source: value }))}
+              >
+                <SelectTrigger className="bg-white/5 border-white/10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-black/95 border-white/10">
+                  {LEAD_SOURCES.map((source) => (
+                    <SelectItem key={source.id} value={source.id}>
+                      {source.icon} {source.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="website" className="text-sm text-muted-foreground">Website</Label>
@@ -197,10 +209,11 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-black/95 border-white/10">
-                  <SelectItem value="triagem">📥 Triagem</SelectItem>
-                  <SelectItem value="qualificado">💎 Qualificado</SelectItem>
-                  <SelectItem value="proposta">📜 Proposta</SelectItem>
-                  <SelectItem value="fechado">🚀 Fechado</SelectItem>
+                  {KANBAN_COLUMNS.map((col) => (
+                    <SelectItem key={col.id} value={col.id}>
+                      {col.icon} {col.title}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
