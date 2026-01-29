@@ -31,6 +31,7 @@ export type Database = {
           source: string | null
           status: string
           updated_at: string
+          user_id: string | null
           value: number | null
           website: string | null
         }
@@ -50,6 +51,7 @@ export type Database = {
           source?: string | null
           status?: string
           updated_at?: string
+          user_id?: string | null
           value?: number | null
           website?: string | null
         }
@@ -69,6 +71,7 @@ export type Database = {
           source?: string | null
           status?: string
           updated_at?: string
+          user_id?: string | null
           value?: number | null
           website?: string | null
         }

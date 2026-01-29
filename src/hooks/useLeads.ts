@@ -2,16 +2,20 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Lead, LeadStatus, LeadSource, STALE_LEAD_DAYS } from '@/types/lead';
 import { toast } from 'sonner';
+import { useAuth } from './useAuth';
 
 export function useLeads() {
+  const { user } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
 
-  // Fetch initial leads
+  // Fetch initial leads when user is available
   useEffect(() => {
-    fetchLeads();
-  }, []);
+    if (user) {
+      fetchLeads();
+    }
+  }, [user]);
 
   // Setup realtime subscription
   useEffect(() => {
@@ -200,11 +204,17 @@ export function useLeads() {
   }
 
   async function createLead(lead: Omit<Lead, 'id' | 'created_at' | 'updated_at'>) {
+    if (!user) {
+      toast.error('Você precisa estar logado para criar leads');
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('leads')
         .insert([{
           ...lead,
+          user_id: user.id,
           last_contact_at: new Date().toISOString(),
         }]);
 

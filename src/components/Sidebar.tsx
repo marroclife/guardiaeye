@@ -7,8 +7,11 @@ import {
   ChevronLeft,
   ChevronRight,
   HelpCircle,
+  LogOut,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 interface SidebarProps {
   activePage: string;
@@ -25,6 +28,16 @@ const menuItems = [
 
 export function Sidebar({ activePage, onPageChange }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast.error('Erro ao sair');
+    } else {
+      toast.success('Você saiu do sistema');
+    }
+  };
 
   return (
     <aside 
@@ -78,6 +91,23 @@ export function Sidebar({ activePage, onPageChange }: SidebarProps) {
           );
         })}
       </nav>
+
+      {/* User & Logout */}
+      <div className="p-3 border-t border-white/10 space-y-2">
+        {user && !collapsed && (
+          <div className="px-3 py-2 text-xs text-muted-foreground truncate">
+            {user.email}
+          </div>
+        )}
+        <button
+          onClick={handleSignOut}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg
+                     text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+        >
+          <LogOut className="w-4 h-4" />
+          {!collapsed && <span className="text-sm">Sair</span>}
+        </button>
+      </div>
 
       {/* Collapse Toggle */}
       <div className="p-3 border-t border-white/10">
