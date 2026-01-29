@@ -35,6 +35,7 @@ const Index = () => {
     analyzeLeadWithAI,
     createLead,
     processStaleLeads,
+    reorderLeads,
   } = useLeads();
 
   // Process stale leads on mount and periodically
@@ -50,11 +51,13 @@ const Index = () => {
   const activeLeads = useMemo(() => leads.filter(l => !l.archived), [leads]);
   const archivedLeads = useMemo(() => leads.filter(l => l.archived), [leads]);
 
-  // Group leads by status
+  // Group leads by status, sorted by position
   const leadsByStatus = useMemo(() => {
     const grouped: Record<string, Lead[]> = {};
     KANBAN_COLUMNS.forEach((col) => {
-      grouped[col.id] = activeLeads.filter((lead) => lead.status === col.id);
+      grouped[col.id] = activeLeads
+        .filter((lead) => lead.status === col.id)
+        .sort((a, b) => a.position - b.position);
     });
     return grouped;
   }, [activeLeads]);
@@ -78,8 +81,12 @@ const Index = () => {
     setSheetOpen(true);
   };
 
-  const handleDrop = (leadId: string, newStatus: Lead['status']) => {
-    updateLeadStatus(leadId, newStatus);
+  const handleDrop = (leadId: string, newStatus: Lead['status'], newPosition?: number) => {
+    updateLeadStatus(leadId, newStatus, newPosition);
+  };
+
+  const handleReorder = (reorderedLeads: { id: string; position: number }[]) => {
+    reorderLeads(reorderedLeads);
   };
 
   const handleEditLead = (lead: Lead) => {
@@ -193,6 +200,7 @@ const Index = () => {
                         leads={leadsByStatus[column.id] || []}
                         onLeadClick={handleLeadClick}
                         onDrop={handleDrop}
+                        onReorder={handleReorder}
                         delay={400 + index * 100}
                       />
                     ))}

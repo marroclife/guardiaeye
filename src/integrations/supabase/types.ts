@@ -26,6 +26,7 @@ export type Database = {
           name: string
           obs: string | null
           phone: string | null
+          position: number | null
           priority: string | null
           role: string | null
           source: string | null
@@ -46,6 +47,7 @@ export type Database = {
           name: string
           obs?: string | null
           phone?: string | null
+          position?: number | null
           priority?: string | null
           role?: string | null
           source?: string | null
@@ -66,6 +68,7 @@ export type Database = {
           name?: string
           obs?: string | null
           phone?: string | null
+          position?: number | null
           priority?: string | null
           role?: string | null
           source?: string | null

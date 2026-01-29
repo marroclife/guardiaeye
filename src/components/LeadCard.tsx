@@ -6,6 +6,7 @@ interface LeadCardProps {
   lead: Lead;
   onClick: () => void;
   isDragging?: boolean;
+  accentColor?: string;
 }
 
 const priorityConfig: Record<LeadPriority, { label: string; className: string }> = {
@@ -14,7 +15,7 @@ const priorityConfig: Record<LeadPriority, { label: string; className: string }>
   high: { label: 'Quente', className: 'temp-tag-hot' },
 };
 
-export function LeadCard({ lead, onClick, isDragging }: LeadCardProps) {
+export function LeadCard({ lead, onClick, isDragging, accentColor }: LeadCardProps) {
   const priority = priorityConfig[lead.priority || 'medium'];
   const source = LEAD_SOURCES.find(s => s.id === lead.source);
   const stale = isLeadStale(lead);
@@ -38,7 +39,8 @@ export function LeadCard({ lead, onClick, isDragging }: LeadCardProps) {
     <div
       onClick={onClick}
       className={cn(
-        'kanban-card p-4 mb-3',
+        'kanban-card p-4 mb-3 border-l-2',
+        accentColor || 'border-l-white/20',
         isDragging && 'dragging',
         stale && 'border-orange-500/50 bg-orange-500/5'
       )}

@@ -35,7 +35,18 @@ export interface Lead {
   obs: string | null;
   source: LeadSource;
   last_contact_at: string;
+  position: number;
 }
+
+// Map column status to accent color class
+export const COLUMN_ACCENT_COLORS: Record<LeadStatus, string> = {
+  triagem: 'border-l-neon-cyan',
+  em_contato: 'border-l-blue-500',
+  sem_resposta: 'border-l-orange-500',
+  em_espera: 'border-l-yellow-500',
+  proposta: 'border-l-purple-500',
+  fechado: 'border-l-neon-green',
+};
 
 export const LEAD_SOURCES: { id: LeadSource; label: string; icon: string }[] = [
   { id: 'whatsapp', label: 'WhatsApp', icon: '💬' },
