@@ -58,6 +58,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
       archived: false,
       obs: formData.obs || null,
       last_contact_at: new Date().toISOString(),
+      position: 0,
     });
 
     setFormData({

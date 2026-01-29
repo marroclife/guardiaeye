@@ -1,4 +1,5 @@
-import { Lead, LeadStatus } from '@/types/lead';
+import { useState, useRef } from 'react';
+import { Lead, LeadStatus, COLUMN_ACCENT_COLORS } from '@/types/lead';
 import { LeadCard } from './LeadCard';
 import { cn } from '@/lib/utils';
 
@@ -9,7 +10,8 @@ interface KanbanColumnProps {
   color?: string;
   leads: Lead[];
   onLeadClick: (lead: Lead) => void;
-  onDrop: (leadId: string, newStatus: LeadStatus) => void;
+  onDrop: (leadId: string, newStatus: LeadStatus, newPosition?: number) => void;
+  onReorder: (reorderedLeads: { id: string; position: number }[]) => void;
   delay?: number;
 }
 
@@ -21,28 +23,73 @@ export function KanbanColumn({
   leads,
   onLeadClick,
   onDrop,
+  onReorder,
   delay = 0,
 }: KanbanColumnProps) {
-  const handleDragOver = (e: React.DragEvent) => {
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const accentColor = COLUMN_ACCENT_COLORS[id];
+
+  const handleDragOver = (e: React.DragEvent, index?: number) => {
     e.preventDefault();
-    e.currentTarget.classList.add('bg-white/5');
+    e.stopPropagation();
+    if (index !== undefined) {
+      setDragOverIndex(index);
+    }
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
-    e.currentTarget.classList.remove('bg-white/5');
+    e.preventDefault();
+    // Only clear if leaving the container entirely
+    if (containerRef.current && !containerRef.current.contains(e.relatedTarget as Node)) {
+      setDragOverIndex(null);
+    }
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent, dropIndex?: number) => {
     e.preventDefault();
-    e.currentTarget.classList.remove('bg-white/5');
+    e.stopPropagation();
+    setDragOverIndex(null);
+    
     const leadId = e.dataTransfer.getData('leadId');
-    if (leadId) {
-      onDrop(leadId, id);
+    const sourceStatus = e.dataTransfer.getData('sourceStatus');
+    
+    if (!leadId) return;
+
+    const targetIndex = dropIndex !== undefined ? dropIndex : leads.length;
+    
+    // If dropping from another column
+    if (sourceStatus !== id) {
+      onDrop(leadId, id, targetIndex);
+      // Reorder existing leads to make room
+      const newOrder = leads.map((lead, idx) => ({
+        id: lead.id,
+        position: idx >= targetIndex ? idx + 1 : idx,
+      }));
+      if (newOrder.length > 0) {
+        onReorder(newOrder);
+      }
+    } else {
+      // Reordering within same column
+      const draggedLeadIndex = leads.findIndex(l => l.id === leadId);
+      if (draggedLeadIndex === -1 || draggedLeadIndex === targetIndex) return;
+
+      const newLeads = [...leads];
+      const [draggedLead] = newLeads.splice(draggedLeadIndex, 1);
+      const adjustedIndex = targetIndex > draggedLeadIndex ? targetIndex - 1 : targetIndex;
+      newLeads.splice(adjustedIndex, 0, draggedLead);
+
+      const newOrder = newLeads.map((lead, idx) => ({
+        id: lead.id,
+        position: idx,
+      }));
+      onReorder(newOrder);
     }
   };
 
   const handleDragStart = (e: React.DragEvent, leadId: string) => {
     e.dataTransfer.setData('leadId', leadId);
+    e.dataTransfer.setData('sourceStatus', id);
     e.dataTransfer.effectAllowed = 'move';
   };
 
@@ -78,23 +125,41 @@ export function KanbanColumn({
 
       {/* Cards Container */}
       <div
+        ref={containerRef}
         className="flex-1 min-h-[300px] md:min-h-[400px] rounded-xl border border-white/5 p-2 md:p-3 transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-280px)]"
-        onDragOver={handleDragOver}
+        onDragOver={(e) => handleDragOver(e, leads.length)}
         onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
+        onDrop={(e) => handleDrop(e, leads.length)}
       >
-        {leads.map((lead) => (
+        {leads.map((lead, index) => (
           <div
             key={lead.id}
             draggable
             onDragStart={(e) => handleDragStart(e, lead.id)}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDrop={(e) => handleDrop(e, index)}
+            className={cn(
+              'transition-all duration-200',
+              dragOverIndex === index && 'pt-12'
+            )}
           >
-            <LeadCard lead={lead} onClick={() => onLeadClick(lead)} />
+            <LeadCard 
+              lead={lead} 
+              onClick={() => onLeadClick(lead)} 
+              accentColor={accentColor}
+            />
           </div>
         ))}
         
         {leads.length === 0 && (
-          <div className="flex items-center justify-center h-24 text-muted-foreground text-xs border border-dashed border-white/10 rounded-lg">
+          <div 
+            className={cn(
+              "flex items-center justify-center h-24 text-muted-foreground text-xs border border-dashed border-white/10 rounded-lg transition-all",
+              dragOverIndex !== null && "bg-white/5 border-neon-cyan/30"
+            )}
+            onDragOver={(e) => handleDragOver(e, 0)}
+            onDrop={(e) => handleDrop(e, 0)}
+          >
             Arraste leads aqui
           </div>
         )}

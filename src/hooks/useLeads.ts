@@ -67,6 +67,7 @@ export function useLeads() {
       source: (row.source || 'manual') as LeadSource,
       archived: row.archived ?? false,
       last_contact_at: row.last_contact_at || row.updated_at || row.created_at,
+      position: row.position ?? 0,
     };
   }
 
@@ -75,7 +76,7 @@ export function useLeads() {
       const { data, error } = await supabase
         .from('leads')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('position', { ascending: true });
 
       if (error) throw error;
       
@@ -89,17 +90,49 @@ export function useLeads() {
     }
   }
 
-  async function updateLeadStatus(leadId: string, newStatus: LeadStatus) {
+  async function updateLeadStatus(leadId: string, newStatus: LeadStatus, newPosition?: number) {
     try {
+      const updateData: { status: LeadStatus; position?: number } = { status: newStatus };
+      if (newPosition !== undefined) {
+        updateData.position = newPosition;
+      }
+      
       const { error } = await supabase
         .from('leads')
-        .update({ status: newStatus })
+        .update(updateData)
         .eq('id', leadId);
 
       if (error) throw error;
     } catch (error) {
       console.error('Error updating lead:', error);
       toast.error('Erro ao atualizar lead');
+    }
+  }
+
+  async function reorderLeads(reorderedLeads: { id: string; position: number }[]) {
+    try {
+      // Optimistic update
+      setLeads(prev => {
+        const updated = [...prev];
+        reorderedLeads.forEach(({ id, position }) => {
+          const index = updated.findIndex(l => l.id === id);
+          if (index !== -1) {
+            updated[index] = { ...updated[index], position };
+          }
+        });
+        return updated;
+      });
+
+      // Batch update positions
+      const promises = reorderedLeads.map(({ id, position }) =>
+        supabase.from('leads').update({ position }).eq('id', id)
+      );
+      
+      await Promise.all(promises);
+    } catch (error) {
+      console.error('Error reordering leads:', error);
+      toast.error('Erro ao reordenar leads');
+      fetchLeads(); // Revert on error
     }
   }
 
@@ -272,6 +305,7 @@ export function useLeads() {
     analyzeLeadWithAI,
     createLead,
     processStaleLeads,
+    reorderLeads,
     refetch: fetchLeads,
   };
 }
