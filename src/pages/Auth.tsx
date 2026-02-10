@@ -7,8 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Shield, Lock, Mail } from 'lucide-react';
+import { Eye, EyeOff, Shield, Lock, Mail, Chrome } from 'lucide-react';
 import { z } from 'zod';
+import { lovable } from '@/integrations/lovable/index';
+import { Separator } from '@/components/ui/separator';
 
 const authSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -23,7 +25,18 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [googleLoading, setGoogleLoading] = useState(false);
 
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    const { error } = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    if (error) {
+      toast.error('Erro ao entrar com Google: ' + error.message);
+      setGoogleLoading(false);
+    }
+  };
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
       navigate('/', { replace: true });
@@ -180,6 +193,24 @@ export default function Auth() {
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? 'Entrando...' : 'Entrar'}
                   </Button>
+
+                  <div className="relative my-2">
+                    <Separator />
+                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+                      ou
+                    </span>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleGoogleSignIn}
+                    disabled={googleLoading || loading}
+                  >
+                    <Chrome className="h-4 w-4 mr-2" />
+                    {googleLoading ? 'Conectando...' : 'Entrar com Google'}
+                  </Button>
                 </form>
               </TabsContent>
 
@@ -232,6 +263,24 @@ export default function Auth() {
 
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? 'Criando conta...' : 'Criar Conta'}
+                  </Button>
+
+                  <div className="relative my-2">
+                    <Separator />
+                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+                      ou
+                    </span>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleGoogleSignIn}
+                    disabled={googleLoading || loading}
+                  >
+                    <Chrome className="h-4 w-4 mr-2" />
+                    {googleLoading ? 'Conectando...' : 'Entrar com Google'}
                   </Button>
                 </form>
               </TabsContent>
