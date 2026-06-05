@@ -103,21 +103,21 @@ const Index = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background grid-pattern">
+    <div className="flex min-h-screen bg-marroc-muscgo grid-pattern">
       <Sidebar activePage={activePage} onPageChange={setActivePage} />
 
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="h-16 border-b border-white/10 px-4 md:px-6 flex items-center justify-between glass-card boot-fade-in">
+        <header className="h-16 border-b border-marroc-dourado/15 px-4 md:px-6 flex items-center justify-between glass-card boot-fade-in">
           <div>
-            <h2 className="text-base md:text-lg font-semibold text-foreground">
+            <h2 className="text-base md:text-lg font-display font-semibold text-marroc-dourado">
               {activePage === 'pipeline' && 'Pipeline de Vendas'}
               {activePage === 'dashboard' && 'Visão Geral'}
               {activePage === 'analytics' && 'Analytics'}
               {activePage === 'settings' && 'Configurações'}
               {activePage === 'help' && 'Central de Ajuda'}
             </h2>
-            <p className="text-xs text-muted-foreground font-mono hidden md:block">
+            <p className="text-xs text-marroc-salvia/70 font-mono hidden md:block">
               {new Date().toLocaleDateString('pt-BR', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -132,7 +132,7 @@ const Index = () => {
                 size="sm"
                 variant="outline"
                 onClick={handleProcessStale}
-                className="border-white/10 hover:bg-white/5 hidden md:flex"
+                className="border-marroc-dourado/25 text-marroc-dourado hover:bg-marroc-dourado/10 hover:text-marroc-dourado hidden md:flex"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Processar Inativos
@@ -152,7 +152,7 @@ const Index = () => {
         <div className="flex-1 overflow-auto p-4 md:p-6">
           {loading ? (
             <div className="flex items-center justify-center h-full">
-              <Loader2 className="w-8 h-8 animate-spin text-neon-cyan" />
+              <Loader2 className="w-8 h-8 animate-spin text-marroc-esmeralda" />
             </div>
           ) : (
             <>
@@ -167,7 +167,7 @@ const Index = () => {
                       value={metrics.totalLeads}
                       subtitle="leads ativos"
                       icon={Users}
-                      iconColor="text-neon-cyan"
+                      iconColor="text-marroc-esmeralda"
                       delay={100}
                     />
                     <MetricCard
@@ -175,7 +175,7 @@ const Index = () => {
                       value={`${metrics.conversionRate}%`}
                       subtitle="leads fechados"
                       icon={TrendingUp}
-                      iconColor="text-neon-purple"
+                      iconColor="text-marroc-dourado"
                       delay={200}
                     />
                     <MetricCard
@@ -183,7 +183,7 @@ const Index = () => {
                       value={metrics.latestLead?.name || '—'}
                       subtitle={metrics.latestLead?.company || 'Nenhum lead pendente'}
                       icon={Bell}
-                      iconColor="text-neon-green"
+                      iconColor="text-marroc-salvia"
                       delay={300}
                     />
                   </div>

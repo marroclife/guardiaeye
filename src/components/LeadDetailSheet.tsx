@@ -110,15 +110,15 @@ export function LeadDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg glass-card border-l border-white/10 bg-black/95 backdrop-blur-xl overflow-y-auto">
-        <SheetHeader className="pb-6 border-b border-white/10">
+      <SheetContent className="w-full sm:max-w-lg glass-card border-l border-marroc-dourado/15 bg-marroc-muscgo/95 backdrop-blur-xl overflow-y-auto">
+        <SheetHeader className="pb-6 border-b border-marroc-dourado/15">
           <div className="flex items-start justify-between">
             <div>
-              <SheetTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
+              <SheetTitle className="text-xl font-semibold text-marroc-texto flex items-center gap-2">
                 {lead.name}
               </SheetTitle>
               {lead.company && (
-                <p className="text-sm text-neon-cyan mt-1 flex items-center gap-1">
+                <p className="text-sm text-marroc-esmeralda mt-1 flex items-center gap-1">
                   <Building2 className="w-3.5 h-3.5" />
                   {lead.company}
                 </p>
@@ -128,7 +128,7 @@ export function LeadDetailSheet({
               {priority.label}
             </span>
           </div>
-          <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-4 mt-3 text-xs text-marroc-salvia/70">
             <span className="font-mono">ID: {lead.id.slice(0, 8)}</span>
             {source && (
               <span className="flex items-center gap-1">
@@ -144,14 +144,14 @@ export function LeadDetailSheet({
         </SheetHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-          <TabsList className="grid w-full grid-cols-3 bg-white/5">
-            <TabsTrigger value="dados" className="data-[state=active]:bg-neon-cyan/20 data-[state=active]:text-neon-cyan">
+          <TabsList className="grid w-full grid-cols-3 bg-marroc-dourado/5">
+            <TabsTrigger value="dados" className="data-[state=active]:bg-marroc-esmeralda/20 data-[state=active]:text-marroc-esmeralda">
               Dados
             </TabsTrigger>
-            <TabsTrigger value="analise" className="data-[state=active]:bg-neon-cyan/20 data-[state=active]:text-neon-cyan">
+            <TabsTrigger value="analise" className="data-[state=active]:bg-marroc-esmeralda/20 data-[state=active]:text-marroc-esmeralda">
               Análise IA
             </TabsTrigger>
-            <TabsTrigger value="acoes" className="data-[state=active]:bg-neon-cyan/20 data-[state=active]:text-neon-cyan">
+            <TabsTrigger value="acoes" className="data-[state=active]:bg-marroc-esmeralda/20 data-[state=active]:text-marroc-esmeralda">
               Ações
             </TabsTrigger>
           </TabsList>
@@ -192,12 +192,12 @@ export function LeadDetailSheet({
               />
             )}
             {lead.obs && (
-              <div className="pt-3 border-t border-white/5">
-                <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+              <div className="pt-3 border-t border-marroc-dourado/15">
+                <div className="flex items-center gap-2 mb-2 text-marroc-salvia/70">
                   <FileText className="w-4 h-4" />
                   <span className="text-sm">Observações</span>
                 </div>
-                <p className="text-sm text-foreground/80 whitespace-pre-wrap bg-white/5 p-3 rounded-lg">
+                <p className="text-sm text-marroc-texto/80 whitespace-pre-wrap bg-marroc-dourado/5 p-3 rounded-lg">
                   {lead.obs}
                 </p>
               </div>
@@ -205,12 +205,12 @@ export function LeadDetailSheet({
           </TabsContent>
 
           <TabsContent value="analise" className="mt-6">
-            <div className="glass-card p-4 rounded-lg border border-white/5">
+            <div className="glass-card p-4 rounded-lg border border-marroc-dourado/15">
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2 text-neon-green">
-                  <Terminal className="w-4 h-4" />
-                  <span className="font-mono text-xs uppercase tracking-wider">
-                    Guardian Analysis
+                <div className="flex items-center gap-2 text-marroc-esmeralda">
+                  <Sparkles className="w-4 h-4" />
+                  <span className="font-display text-sm tracking-wide">
+                    Análise do Operador
                   </span>
                 </div>
                 <Button
@@ -218,7 +218,7 @@ export function LeadDetailSheet({
                   variant="outline"
                   onClick={handleAnalyze}
                   disabled={analyzing}
-                  className="border-neon-purple/50 text-neon-purple hover:bg-neon-purple/10 gap-2"
+                  className="border-marroc-dourado/50 text-marroc-dourado hover:bg-marroc-dourado/10 gap-2"
                 >
                   {analyzing ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -231,15 +231,15 @@ export function LeadDetailSheet({
               
               <div className="terminal-text min-h-[200px] whitespace-pre-wrap text-sm">
                 {analyzing ? (
-                  <div className="flex flex-col items-center justify-center h-[200px] text-muted-foreground">
-                    <Loader2 className="w-8 h-8 animate-spin text-neon-purple mb-3" />
+                  <div className="flex flex-col items-center justify-center h-[200px] text-marroc-salvia/70">
+                    <Loader2 className="w-8 h-8 animate-spin text-marroc-dourado mb-3" />
                     <p className="text-sm">Processando análise com IA...</p>
                     <p className="text-xs mt-1 opacity-60">Isso pode levar alguns segundos</p>
                   </div>
                 ) : displayAnalysis ? (
-                  <span className="text-foreground/90">{displayAnalysis}</span>
+                  <span className="text-marroc-texto/90">{displayAnalysis}</span>
                 ) : (
-                  <span className="text-muted-foreground opacity-50">
+                  <span className="text-marroc-salvia/70 opacity-50">
                     {`> Aguardando análise do sistema...\n> Nenhum relatório disponível.\n> Clique em "Gerar Análise" para criar o dossiê.`}
                   </span>
                 )}
@@ -251,27 +251,27 @@ export function LeadDetailSheet({
             {onUpdateLastContact && (
               <Button
                 variant="outline"
-                className="w-full justify-start gap-3 h-12 border-white/10 hover:bg-white/5 hover:border-neon-green/50"
+                className="w-full justify-start gap-3 h-12 border-marroc-dourado/15 hover:bg-marroc-dourado/5 hover:border-neon-green/50"
                 onClick={handleMarkContact}
               >
-                <RefreshCw className="w-4 h-4 text-neon-green" />
+                <RefreshCw className="w-4 h-4 text-marroc-salvia" />
                 Marcar Contato Realizado
               </Button>
             )}
             <Button
               variant="outline"
-              className="w-full justify-start gap-3 h-12 border-white/10 hover:bg-white/5 hover:border-neon-cyan/50"
+              className="w-full justify-start gap-3 h-12 border-marroc-dourado/15 hover:bg-marroc-dourado/5 hover:border-marroc-esmeralda/50"
               onClick={() => {
                 onEdit(lead);
                 onOpenChange(false);
               }}
             >
-              <Pencil className="w-4 h-4 text-neon-cyan" />
+              <Pencil className="w-4 h-4 text-marroc-esmeralda" />
               Editar Lead
             </Button>
             <Button
               variant="outline"
-              className="w-full justify-start gap-3 h-12 border-white/10 hover:bg-destructive/10 hover:border-destructive/50 hover:text-destructive"
+              className="w-full justify-start gap-3 h-12 border-marroc-dourado/15 hover:bg-red-500/10 hover:border-destructive/50 hover:text-red-300"
               onClick={() => {
                 onArchive(lead.id);
                 onOpenChange(false);
@@ -300,13 +300,13 @@ interface InfoRowProps {
 
 function InfoRow({ icon: Icon, label, value, action, highlight }: InfoRowProps) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-white/5">
+    <div className="flex items-center justify-between py-3 border-b border-marroc-dourado/15">
       <div className="flex items-center gap-3">
-        <Icon className="w-4 h-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">{label}</span>
+        <Icon className="w-4 h-4 text-marroc-salvia/70" />
+        <span className="text-sm text-marroc-salvia/70">{label}</span>
       </div>
       <div className="flex items-center gap-2">
-        <span className={`text-sm ${highlight ? 'font-mono text-neon-green' : 'text-foreground'}`}>
+        <span className={`text-sm ${highlight ? 'font-display text-marroc-dourado' : 'text-marroc-texto'}`}>
           {value || '—'}
         </span>
         {action?.href && (
@@ -314,9 +314,9 @@ function InfoRow({ icon: Icon, label, value, action, highlight }: InfoRowProps) 
             href={action.href} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="p-1 rounded hover:bg-white/10 transition-colors"
+            className="p-1 rounded hover:bg-marroc-dourado/10 transition-colors"
           >
-            <action.icon className="w-3.5 h-3.5 text-neon-cyan" />
+            <action.icon className="w-3.5 h-3.5 text-marroc-esmeralda" />
           </a>
         )}
       </div>

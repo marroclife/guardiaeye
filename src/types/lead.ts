@@ -40,12 +40,12 @@ export interface Lead {
 
 // Map column status to accent color class
 export const COLUMN_ACCENT_COLORS: Record<LeadStatus, string> = {
-  triagem: 'border-l-neon-cyan',
-  em_contato: 'border-l-blue-500',
-  sem_resposta: 'border-l-orange-500',
-  em_espera: 'border-l-yellow-500',
-  proposta: 'border-l-purple-500',
-  fechado: 'border-l-neon-green',
+  triagem: 'border-l-marroc-salvia/60',
+  em_contato: 'border-l-blue-400/60',
+  sem_resposta: 'border-l-amber-400/60',
+  em_espera: 'border-l-yellow-300/50',
+  proposta: 'border-l-marroc-dourado/70',
+  fechado: 'border-l-marroc-esmeralda/70',
 };
 
 export const LEAD_SOURCES: { id: LeadSource; label: string; icon: string }[] = [
@@ -59,12 +59,12 @@ export const LEAD_SOURCES: { id: LeadSource; label: string; icon: string }[] = [
 ];
 
 export const KANBAN_COLUMNS: { id: LeadStatus; title: string; icon: string; color: string }[] = [
-  { id: 'triagem', title: 'Triagem', icon: '📥', color: 'border-neon-cyan/30' },
-  { id: 'em_contato', title: 'Em Contato', icon: '📞', color: 'border-blue-500/30' },
-  { id: 'sem_resposta', title: 'Sem Resposta', icon: '⏳', color: 'border-orange-500/30' },
-  { id: 'em_espera', title: 'Em Espera', icon: '⏸️', color: 'border-yellow-500/30' },
-  { id: 'proposta', title: 'Proposta Enviada', icon: '📜', color: 'border-purple-500/30' },
-  { id: 'fechado', title: 'Fechado', icon: '🚀', color: 'border-neon-green/30' },
+  { id: 'triagem', title: 'Triagem', icon: '📥', color: 'border-marroc-salvia/30' },
+  { id: 'em_contato', title: 'Em Contato', icon: '📞', color: 'border-blue-400/30' },
+  { id: 'sem_resposta', title: 'Sem Resposta', icon: '⏳', color: 'border-amber-400/30' },
+  { id: 'em_espera', title: 'Em Espera', icon: '⏸️', color: 'border-yellow-300/30' },
+  { id: 'proposta', title: 'Proposta Enviada', icon: '📜', color: 'border-marroc-dourado/40' },
+  { id: 'fechado', title: 'Fechado', icon: '🚀', color: 'border-marroc-esmeralda/40' },
 ];
 
 // Stale lead threshold in days

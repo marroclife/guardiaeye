@@ -80,14 +80,16 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="btn-neon">
+        <Button className="btn-marroc">
           <Plus className="w-4 h-4 mr-2" />
           Novo Lead
         </Button>
       </DialogTrigger>
-      <DialogContent className="glass-card border-white/10 bg-black/95 backdrop-blur-xl sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="glass-card border-marroc-dourado/15 bg-marroc-muscgo/95 backdrop-blur-xl sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Adicionar Lead</DialogTitle>
+          <DialogTitle className="text-xl font-display font-bold text-marroc-dourado">
+            Adicionar Lead
+          </DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
@@ -98,7 +100,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="bg-white/5 border-white/10 focus:border-neon-cyan"
+              className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
               placeholder="Nome do contato"
             />
           </div>
@@ -110,7 +112,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
                 id="company"
                 value={formData.company}
                 onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                className="bg-white/5 border-white/10 focus:border-neon-cyan"
+                className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
                 placeholder="Nome da empresa"
               />
             </div>
@@ -120,10 +122,10 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
                 value={formData.source}
                 onValueChange={(value: LeadSource) => setFormData({ ...formData, source: value })}
               >
-                <SelectTrigger className="bg-white/5 border-white/10">
+                <SelectTrigger className="bg-marroc-dourado/5 border-marroc-dourado/15">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-black/95 border-white/10">
+                <SelectContent className="bg-marroc-muscgo/95 border-marroc-dourado/15">
                   {LEAD_SOURCES.map((source) => (
                     <SelectItem key={source.id} value={source.id}>
                       {source.icon} {source.label}
@@ -141,7 +143,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="bg-white/5 border-white/10 focus:border-neon-cyan"
+                className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
                 placeholder="+55 11 99999-9999"
               />
             </div>
@@ -152,7 +154,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="bg-white/5 border-white/10 focus:border-neon-cyan"
+                className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
                 placeholder="email@empresa.com"
               />
             </div>
@@ -166,7 +168,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
                 type="number"
                 value={formData.value}
                 onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-                className="bg-white/5 border-white/10 focus:border-neon-cyan font-mono"
+                className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda font-mono"
                 placeholder="0"
               />
             </div>
@@ -176,10 +178,10 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
                 value={formData.priority}
                 onValueChange={(value: LeadPriority) => setFormData({ ...formData, priority: value })}
               >
-                <SelectTrigger className="bg-white/5 border-white/10">
+                <SelectTrigger className="bg-marroc-dourado/5 border-marroc-dourado/15">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-black/95 border-white/10">
+                <SelectContent className="bg-marroc-muscgo/95 border-marroc-dourado/15">
                   <SelectItem value="low">🧊 Frio</SelectItem>
                   <SelectItem value="medium">🔥 Morno</SelectItem>
                   <SelectItem value="high">💥 Quente</SelectItem>
@@ -194,7 +196,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
               id="website"
               value={formData.website}
               onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-              className="bg-white/5 border-white/10 focus:border-neon-cyan"
+              className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
               placeholder="www.empresa.com.br"
             />
           </div>
@@ -205,7 +207,7 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
               id="obs"
               value={formData.obs}
               onChange={(e) => setFormData({ ...formData, obs: e.target.value })}
-              className="bg-white/5 border-white/10 focus:border-neon-cyan min-h-[80px] resize-none"
+              className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda min-h-[80px] resize-none"
               placeholder="Notas e observações sobre o lead..."
             />
           </div>
@@ -215,11 +217,11 @@ export function AddLeadModal({ onAdd }: AddLeadModalProps) {
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
-              className="flex-1 border-white/10 hover:bg-white/5"
+              className="flex-1 border-marroc-dourado/15 hover:bg-marroc-dourado/5"
             >
               Cancelar
             </Button>
-            <Button type="submit" className="flex-1 btn-neon">
+            <Button type="submit" className="flex-1 btn-marroc">
               Adicionar
             </Button>
           </div>

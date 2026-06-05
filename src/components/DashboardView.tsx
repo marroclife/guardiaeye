@@ -20,7 +20,7 @@ export function DashboardView({ leads }: DashboardViewProps) {
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-semibold text-foreground mb-4 boot-fade-in">
+        <h3 className="text-lg font-semibold text-marroc-texto mb-4 boot-fade-in">
           Métricas Principais
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -29,7 +29,7 @@ export function DashboardView({ leads }: DashboardViewProps) {
             value={totalLeads}
             subtitle="leads ativos"
             icon={Users}
-            iconColor="text-neon-cyan"
+            iconColor="text-marroc-esmeralda"
             delay={100}
           />
           <MetricCard
@@ -37,7 +37,7 @@ export function DashboardView({ leads }: DashboardViewProps) {
             value={`${conversionRate}%`}
             subtitle="leads fechados"
             icon={TrendingUp}
-            iconColor="text-neon-purple"
+            iconColor="text-marroc-dourado"
             delay={200}
           />
           <MetricCard
@@ -45,7 +45,7 @@ export function DashboardView({ leads }: DashboardViewProps) {
             value={`R$ ${totalValue.toLocaleString('pt-BR')}`}
             subtitle="em negociação"
             icon={DollarSign}
-            iconColor="text-neon-green"
+            iconColor="text-marroc-salvia"
             delay={300}
           />
           <MetricCard
@@ -53,7 +53,7 @@ export function DashboardView({ leads }: DashboardViewProps) {
             value={proposalLeads}
             subtitle={`R$ ${proposalValue.toLocaleString('pt-BR')}`}
             icon={FileText}
-            iconColor="text-neon-purple"
+            iconColor="text-marroc-dourado"
             delay={400}
           />
           <MetricCard
@@ -69,7 +69,7 @@ export function DashboardView({ leads }: DashboardViewProps) {
             value={closedLeads}
             subtitle="protocolo ativado"
             icon={Target}
-            iconColor="text-neon-green"
+            iconColor="text-marroc-salvia"
             delay={600}
           />
         </div>
@@ -78,26 +78,26 @@ export function DashboardView({ leads }: DashboardViewProps) {
       {/* Alertas */}
       {staleLeads.length > 0 && (
         <div className="boot-fade-in" style={{ animationDelay: '400ms' }}>
-          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-marroc-texto mb-4 flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-orange-400" />
             Leads Parados ({staleLeads.length})
           </h3>
           <div className="glass-card p-4 rounded-lg border border-orange-500/30 bg-orange-500/5">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {staleLeads.slice(0, 6).map((lead) => (
-                <div key={lead.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                <div key={lead.id} className="flex items-center justify-between p-3 bg-marroc-dourado/5 rounded-lg">
                   <div>
-                    <p className="font-medium text-foreground text-sm truncate">{lead.name}</p>
-                    <p className="text-xs text-muted-foreground">{lead.company || 'Sem empresa'}</p>
+                    <p className="font-medium text-marroc-texto text-sm truncate">{lead.name}</p>
+                    <p className="text-xs text-marroc-salvia/70">{lead.company || 'Sem empresa'}</p>
                   </div>
-                  <span className="text-xs text-orange-400 font-mono">
+                  <span className="text-xs text-amber-300 font-light">
                     {Math.floor((new Date().getTime() - new Date(lead.last_contact_at).getTime()) / (1000 * 60 * 60 * 24))}d
                   </span>
                 </div>
               ))}
             </div>
             {staleLeads.length > 6 && (
-              <p className="text-xs text-muted-foreground mt-3 text-center">
+              <p className="text-xs text-marroc-salvia/70 mt-3 text-center">
                 +{staleLeads.length - 6} outros leads parados
               </p>
             )}
@@ -106,7 +106,7 @@ export function DashboardView({ leads }: DashboardViewProps) {
       )}
 
       <div>
-        <h3 className="text-lg font-semibold text-foreground mb-4 boot-fade-in" style={{ animationDelay: '300ms' }}>
+        <h3 className="text-lg font-semibold text-marroc-texto mb-4 boot-fade-in" style={{ animationDelay: '300ms' }}>
           Resumo do Pipeline
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -117,7 +117,7 @@ export function DashboardView({ leads }: DashboardViewProps) {
               <div
                 key={col.id}
                 className={`glass-card p-4 rounded-lg border boot-fade-in ${
-                  isBottleneck ? 'border-orange-500/50 bg-orange-500/5' : 'border-white/10'
+                  isBottleneck ? 'border-orange-500/50 bg-orange-500/5' : 'border-marroc-dourado/15'
                 }`}
                 style={{ animationDelay: `${400 + index * 100}ms` }}
               >
@@ -125,8 +125,8 @@ export function DashboardView({ leads }: DashboardViewProps) {
                   <span className="text-base">{col.icon}</span>
                   {isBottleneck && <AlertTriangle className="w-3 h-3 text-orange-400" />}
                 </div>
-                <p className="text-2xl font-bold font-mono text-foreground">{count}</p>
-                <p className="text-xs text-muted-foreground truncate">{col.title}</p>
+                <p className="text-2xl font-display font-bold text-marroc-dourado">{count}</p>
+                <p className="text-xs text-marroc-salvia/70 truncate">{col.title}</p>
               </div>
             );
           })}
@@ -136,19 +136,19 @@ export function DashboardView({ leads }: DashboardViewProps) {
       {/* Próxima Ação */}
       {latestLead && (
         <div className="boot-fade-in" style={{ animationDelay: '600ms' }}>
-          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Bell className="w-5 h-5 text-neon-cyan" />
+          <h3 className="text-lg font-semibold text-marroc-texto mb-4 flex items-center gap-2">
+            <Bell className="w-5 h-5 text-marroc-esmeralda" />
             Próxima Ação Recomendada
           </h3>
-          <div className="glass-card p-4 rounded-lg border border-neon-cyan/30">
+          <div className="glass-card p-4 rounded-lg border border-marroc-esmeralda/30">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-foreground">{latestLead.name}</p>
-                <p className="text-sm text-muted-foreground">{latestLead.company || 'Sem empresa'}</p>
+                <p className="font-medium text-marroc-texto">{latestLead.name}</p>
+                <p className="text-sm text-marroc-salvia/70">{latestLead.company || 'Sem empresa'}</p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-neon-cyan">Follow-up pendente</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-marroc-esmeralda">Follow-up pendente</p>
+                <p className="text-xs text-marroc-salvia/70">
                   Último contato: {new Date(latestLead.last_contact_at).toLocaleDateString('pt-BR')}
                 </p>
               </div>

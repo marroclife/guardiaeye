@@ -110,7 +110,7 @@ export default function Auth() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Carregando...</div>
+        <div className="animate-pulse text-marroc-salvia/70">Carregando...</div>
       </div>
     );
   }
@@ -123,10 +123,10 @@ export default function Auth() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
             <Shield className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Guardian's Eye
+          <h1 className="text-2xl font-display font-bold text-marroc-dourado">
+            NEXO's Eye
           </h1>
-          <p className="text-muted-foreground mt-2">Sistema de Gestão de Leads</p>
+          <p className="text-marroc-salvia/70 mt-2">Sistema de Gestão de Leads</p>
         </div>
 
         <Card className="border-border/50 shadow-xl backdrop-blur-sm">
@@ -148,7 +148,7 @@ export default function Auth() {
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-marroc-salvia/70" />
                       <Input
                         id="login-email"
                         type="email"
@@ -160,14 +160,14 @@ export default function Auth() {
                       />
                     </div>
                     {errors.email && (
-                      <p className="text-sm text-destructive">{errors.email}</p>
+                      <p className="text-sm text-red-300">{errors.email}</p>
                     )}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="login-password">Senha</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-marroc-salvia/70" />
                       <Input
                         id="login-password"
                         type={showPassword ? 'text' : 'password'}
@@ -180,13 +180,13 @@ export default function Auth() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-marroc-salvia/70 hover:text-marroc-texto"
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                     {errors.password && (
-                      <p className="text-sm text-destructive">{errors.password}</p>
+                      <p className="text-sm text-red-300">{errors.password}</p>
                     )}
                   </div>
 
@@ -196,7 +196,7 @@ export default function Auth() {
 
                   <div className="relative my-2">
                     <Separator />
-                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-marroc-salvia/70">
                       ou
                     </span>
                   </div>
@@ -219,7 +219,7 @@ export default function Auth() {
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-marroc-salvia/70" />
                       <Input
                         id="signup-email"
                         type="email"
@@ -231,14 +231,14 @@ export default function Auth() {
                       />
                     </div>
                     {errors.email && (
-                      <p className="text-sm text-destructive">{errors.email}</p>
+                      <p className="text-sm text-red-300">{errors.email}</p>
                     )}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Senha</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-marroc-salvia/70" />
                       <Input
                         id="signup-password"
                         type={showPassword ? 'text' : 'password'}
@@ -251,13 +251,13 @@ export default function Auth() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-marroc-salvia/70 hover:text-marroc-texto"
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                     {errors.password && (
-                      <p className="text-sm text-destructive">{errors.password}</p>
+                      <p className="text-sm text-red-300">{errors.password}</p>
                     )}
                   </div>
 
@@ -267,7 +267,7 @@ export default function Auth() {
 
                   <div className="relative my-2">
                     <Separator />
-                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-marroc-salvia/70">
                       ou
                     </span>
                   </div>
@@ -288,7 +288,7 @@ export default function Auth() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
+        <p className="text-center text-sm text-marroc-salvia/70 mt-6">
           Protegido por criptografia de ponta a ponta
         </p>
       </div>

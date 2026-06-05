@@ -12,6 +12,19 @@ dist
 dist-ssr
 *.local
 
+# Variáveis de ambiente (NUNCA commitar)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# Backups
+backups/
+*.tar.gz
+*.zip
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

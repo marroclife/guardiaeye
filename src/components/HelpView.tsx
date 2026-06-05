@@ -50,7 +50,7 @@ const helpCategories: HelpCategory[] = [
     id: 'database',
     title: 'Banco de Dados',
     icon: Database,
-    iconColor: 'text-neon-cyan',
+    iconColor: 'text-marroc-esmeralda',
     articles: [
       {
         id: 'db-structure',
@@ -116,7 +116,7 @@ const { data, error } = await supabase
     id: 'webhook',
     title: 'Integração n8n / Webhooks',
     icon: Webhook,
-    iconColor: 'text-neon-purple',
+    iconColor: 'text-marroc-dourado',
     articles: [
       {
         id: 'n8n-setup',
@@ -187,7 +187,7 @@ Dados do lead: {leadData}"`
     id: 'pipeline',
     title: 'Gerenciando o Pipeline',
     icon: Users,
-    iconColor: 'text-neon-green',
+    iconColor: 'text-marroc-salvia',
     articles: [
       {
         id: 'kanban-usage',
@@ -251,7 +251,7 @@ Arraste e solte para mover entre colunas. A mudança é salva automaticamente.`,
     id: 'settings',
     title: 'Configurações',
     icon: Settings,
-    iconColor: 'text-muted-foreground',
+    iconColor: 'text-marroc-salvia/70',
     articles: [
       {
         id: 'notifications',
@@ -390,24 +390,24 @@ export function HelpView() {
       {/* Header */}
       <div className="boot-fade-in">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-marroc-esmeralda to-marroc-dourado flex items-center justify-center">
             <BookOpen className="w-5 h-5 text-black" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-foreground">Central de Ajuda</h2>
-            <p className="text-sm text-muted-foreground font-mono">GUARDIAN'S EYE DOCUMENTATION v1.0</p>
+            <h2 className="text-xl font-display font-semibold text-marroc-texto">Central de Ajuda</h2>
+            <p className="text-sm text-marroc-salvia/70 font-mono">GUARDIAN'S EYE DOCUMENTATION v1.0</p>
           </div>
         </div>
       </div>
 
       {/* Search */}
       <div className="relative boot-fade-in" style={{ animationDelay: '100ms' }}>
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-marroc-salvia/70" />
         <Input
           placeholder="Buscar na documentação..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 bg-black/40 border-white/10 focus:border-neon-cyan/50"
+          className="pl-10 bg-marroc-muscgo/40 border-marroc-dourado/15 focus:border-marroc-esmeralda/50"
         />
       </div>
 
@@ -420,13 +420,13 @@ export function HelpView() {
             className={`
               p-4 rounded-lg glass-card border transition-all duration-200
               ${expandedCategory === category.id 
-                ? 'border-neon-cyan/30 bg-neon-cyan/5' 
-                : 'border-white/10 hover:border-white/20 hover:bg-white/5'
+                ? 'border-marroc-esmeralda/30 bg-marroc-esmeralda/5' 
+                : 'border-marroc-dourado/15 hover:border-marroc-dourado/25 hover:bg-marroc-dourado/5'
               }
             `}
           >
             <category.icon className={`w-5 h-5 ${category.iconColor} mb-2`} />
-            <p className="text-sm font-medium text-foreground">{category.title}</p>
+            <p className="text-sm font-medium text-marroc-texto">{category.title}</p>
           </button>
         ))}
       </div>
@@ -436,39 +436,39 @@ export function HelpView() {
         {filteredCategories.map((category, catIndex) => (
           <div 
             key={category.id} 
-            className="glass-card rounded-lg border border-white/10 overflow-hidden boot-fade-in"
+            className="glass-card rounded-lg border border-marroc-dourado/15 overflow-hidden boot-fade-in"
             style={{ animationDelay: `${300 + catIndex * 100}ms` }}
           >
             <button
               onClick={() => setExpandedCategory(expandedCategory === category.id ? null : category.id)}
-              className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
+              className="w-full flex items-center justify-between p-4 hover:bg-marroc-dourado/5 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <category.icon className={`w-5 h-5 ${category.iconColor}`} />
-                <h3 className="text-lg font-semibold text-foreground">{category.title}</h3>
-                <span className="text-xs text-muted-foreground font-mono">
+                <h3 className="text-lg font-semibold text-marroc-texto">{category.title}</h3>
+                <span className="text-xs text-marroc-salvia/70 font-mono">
                   {category.articles.length} artigos
                 </span>
               </div>
               {expandedCategory === category.id ? (
-                <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                <ChevronDown className="w-5 h-5 text-marroc-salvia/70" />
               ) : (
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                <ChevronRight className="w-5 h-5 text-marroc-salvia/70" />
               )}
             </button>
 
             {expandedCategory === category.id && (
-              <div className="border-t border-white/10">
+              <div className="border-t border-marroc-dourado/15">
                 <Accordion type="single" collapsible className="w-full">
                   {category.articles.map((article) => (
-                    <AccordionItem key={article.id} value={article.id} className="border-white/10">
-                      <AccordionTrigger className="px-4 py-3 hover:bg-white/5 text-left">
-                        <span className="text-foreground">{article.title}</span>
+                    <AccordionItem key={article.id} value={article.id} className="border-marroc-dourado/15">
+                      <AccordionTrigger className="px-4 py-3 hover:bg-marroc-dourado/5 text-left">
+                        <span className="text-marroc-texto">{article.title}</span>
                       </AccordionTrigger>
                       <AccordionContent className="px-4 pb-4">
                         <div className="space-y-4">
                           {/* Main Content */}
-                          <div className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
+                          <div className="text-sm text-marroc-salvia/70 whitespace-pre-line leading-relaxed">
                             {article.content}
                           </div>
 
@@ -482,28 +482,28 @@ export function HelpView() {
 
                           {/* Tip Box */}
                           {article.tip && (
-                            <div className="flex gap-3 p-3 rounded-lg bg-neon-cyan/10 border border-neon-cyan/20">
-                              <Lightbulb className="w-5 h-5 text-neon-cyan flex-shrink-0 mt-0.5" />
-                              <p className="text-sm text-neon-cyan/90">{article.tip}</p>
+                            <div className="flex gap-3 p-3 rounded-lg bg-marroc-esmeralda/10 border border-marroc-esmeralda/20">
+                              <Lightbulb className="w-5 h-5 text-marroc-esmeralda flex-shrink-0 mt-0.5" />
+                              <p className="text-sm text-marroc-esmeralda/90">{article.tip}</p>
                             </div>
                           )}
 
                           {/* Code Block */}
                           {article.code && (
                             <div className="relative">
-                              <div className="flex items-center justify-between px-3 py-2 bg-black/60 rounded-t-lg border border-white/10 border-b-0">
+                              <div className="flex items-center justify-between px-3 py-2 bg-marroc-muscgo/60 rounded-t-lg border border-marroc-dourado/15 border-b-0">
                                 <div className="flex items-center gap-2">
-                                  <Terminal className="w-4 h-4 text-neon-green" />
-                                  <span className="text-xs font-mono text-muted-foreground">Código</span>
+                                  <Terminal className="w-4 h-4 text-marroc-salvia" />
+                                  <span className="text-xs font-mono text-marroc-salvia/70">Código</span>
                                 </div>
                                 <button
                                   onClick={() => copyToClipboard(article.code!, article.id)}
-                                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                                  className="flex items-center gap-1 text-xs text-marroc-salvia/70 hover:text-marroc-texto transition-colors"
                                 >
                                   {copiedCode === article.id ? (
                                     <>
-                                      <Check className="w-3 h-3 text-neon-green" />
-                                      <span className="text-neon-green">Copiado!</span>
+                                      <Check className="w-3 h-3 text-marroc-salvia" />
+                                      <span className="text-marroc-salvia">Copiado!</span>
                                     </>
                                   ) : (
                                     <>
@@ -513,8 +513,8 @@ export function HelpView() {
                                   )}
                                 </button>
                               </div>
-                              <pre className="p-4 bg-black/80 rounded-b-lg border border-white/10 border-t-0 overflow-x-auto">
-                                <code className="text-xs font-mono text-neon-green whitespace-pre">
+                              <pre className="p-4 bg-marroc-muscgo/80 rounded-b-lg border border-marroc-dourado/15 border-t-0 overflow-x-auto">
+                                <code className="text-xs font-mono text-marroc-salvia whitespace-pre">
                                   {article.code}
                                 </code>
                               </pre>
@@ -532,14 +532,14 @@ export function HelpView() {
       </div>
 
       {/* Footer Help */}
-      <div className="glass-card p-6 rounded-lg border border-white/10 boot-fade-in" style={{ animationDelay: '700ms' }}>
+      <div className="glass-card p-6 rounded-lg border border-marroc-dourado/15 boot-fade-in" style={{ animationDelay: '700ms' }}>
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-lg bg-neon-purple/20 flex items-center justify-center flex-shrink-0">
-            <MessageSquare className="w-6 h-6 text-neon-purple" />
+          <div className="w-12 h-12 rounded-lg bg-marroc-dourado/20 flex items-center justify-center flex-shrink-0">
+            <MessageSquare className="w-6 h-6 text-marroc-dourado" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-foreground mb-1">Precisa de mais ajuda?</h3>
-            <p className="text-sm text-muted-foreground mb-3">
+            <h3 className="text-lg font-semibold text-marroc-texto mb-1">Precisa de mais ajuda?</h3>
+            <p className="text-sm text-marroc-salvia/70 mb-3">
               Entre em contato com o suporte técnico ou acesse a documentação completa do Lovable.
             </p>
             <div className="flex flex-wrap gap-2">
@@ -547,7 +547,7 @@ export function HelpView() {
                 href="https://docs.lovable.dev"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-white/5 border border-white/10 text-foreground hover:bg-white/10 transition-colors"
+                className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-marroc-dourado/5 border border-marroc-dourado/15 text-marroc-texto hover:bg-marroc-dourado/10 transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
                 Documentação Lovable
@@ -556,7 +556,7 @@ export function HelpView() {
                 href="https://docs.n8n.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-white/5 border border-white/10 text-foreground hover:bg-white/10 transition-colors"
+                className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-marroc-dourado/5 border border-marroc-dourado/15 text-marroc-texto hover:bg-marroc-dourado/10 transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
                 Documentação n8n

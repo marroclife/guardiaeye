@@ -104,19 +104,21 @@ export function KanbanColumn({
     >
       {/* Column Header */}
       <div className={cn(
-        'glass-card px-3 py-2.5 mb-3 flex items-center justify-between border-l-2',
-        color || 'border-white/20'
+        'glass-card px-4 py-3 mb-3 flex items-center justify-between border-l-2 rounded-lg',
+        color || 'border-marroc-dourado/25'
       )}>
         <div className="flex items-center gap-2">
           <span className="text-base">{icon}</span>
-          <h3 className="font-medium text-foreground text-sm">{title}</h3>
+          <h3 className="font-display font-semibold text-marroc-dourado text-sm tracking-wide">
+            {title}
+          </h3>
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs px-2 py-0.5 bg-white/5 rounded-full text-muted-foreground">
+          <span className="font-light text-xs px-2.5 py-0.5 bg-marroc-dourado/10 border border-marroc-dourado/20 rounded-full text-marroc-dourado">
             {leads.length}
           </span>
           {hasValue && (
-            <span className="font-mono text-xs text-neon-green hidden md:block">
+            <span className="font-display text-xs font-semibold text-marroc-esmeralda hidden md:block">
               R$ {totalValue.toLocaleString('pt-BR')}
             </span>
           )}
@@ -126,7 +128,7 @@ export function KanbanColumn({
       {/* Cards Container */}
       <div
         ref={containerRef}
-        className="flex-1 min-h-[300px] md:min-h-[400px] rounded-xl border border-white/5 p-2 md:p-3 transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-280px)]"
+        className="flex-1 min-h-[300px] md:min-h-[400px] rounded-xl border border-marroc-dourado/15 p-2 md:p-3 transition-colors duration-200 overflow-y-auto max-h-[calc(100vh-280px)]"
         onDragOver={(e) => handleDragOver(e, leads.length)}
         onDragLeave={handleDragLeave}
         onDrop={(e) => handleDrop(e, leads.length)}
@@ -154,8 +156,8 @@ export function KanbanColumn({
         {leads.length === 0 && (
           <div 
             className={cn(
-              "flex items-center justify-center h-24 text-muted-foreground text-xs border border-dashed border-white/10 rounded-lg transition-all",
-              dragOverIndex !== null && "bg-white/5 border-neon-cyan/30"
+              "flex items-center justify-center h-24 text-marroc-salvia/70 text-xs border border-dashed border-marroc-dourado/15 rounded-lg transition-all",
+              dragOverIndex !== null && "bg-marroc-dourado/5 border-marroc-esmeralda/30"
             )}
             onDragOver={(e) => handleDragOver(e, 0)}
             onDrop={(e) => handleDrop(e, 0)}

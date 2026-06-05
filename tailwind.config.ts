@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Poppins', 'system-ui', 'sans-serif'],
+        display: ['Playfair Display', 'Georgia', 'serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
@@ -61,15 +62,25 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Cores "neon" remapeadas para o ecossistema Marroc
+        // (mantém os nomes para não quebrar componentes legados)
         neon: {
-          cyan: "hsl(var(--neon-cyan))",
-          purple: "hsl(var(--neon-purple))",
-          pink: "hsl(var(--neon-pink))",
-          green: "hsl(var(--neon-green))",
-          orange: "hsl(var(--neon-orange))",
+          cyan: "hsl(var(--neon-cyan))",        // agora = esmeralda
+          purple: "hsl(var(--neon-purple))",    // agora = dourado
+          pink: "hsl(var(--neon-pink))",        // agora = salvia
+          green: "hsl(var(--neon-green))",      // agora = salvia claro
+          orange: "hsl(var(--neon-orange))",    // agora = champanhe
         },
         terminal: {
-          green: "hsl(var(--terminal-green))",
+          green: "hsl(var(--terminal-green))",  // agora = esmeralda
+        },
+        // Tokens diretos Marroc
+        marroc: {
+          muscgo: "#0b1f18",
+          dourado: "#d1c596",
+          esmeralda: "#3cb878",
+          salvia: "#b3caa1",
+          texto: "#f5f5f5",
         },
       },
       borderRadius: {

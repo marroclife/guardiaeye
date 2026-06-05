@@ -18,8 +18,8 @@ export function SystemStatus({ isConnected }: SystemStatusProps) {
       <div className="relative flex items-center justify-center">
         {isConnected ? (
           <>
-            <span className="absolute w-2 h-2 bg-green-500 rounded-full animate-ping opacity-75" />
-            <span className="relative w-2 h-2 bg-green-500 rounded-full" />
+            <span className="absolute w-2 h-2 bg-marroc-esmeralda rounded-full animate-ping opacity-75" />
+            <span className="relative w-2 h-2 bg-marroc-esmeralda rounded-full" />
           </>
         ) : (
           <span className="w-2 h-2 bg-red-500 rounded-full" />
@@ -27,15 +27,15 @@ export function SystemStatus({ isConnected }: SystemStatusProps) {
       </div>
       <span className="font-mono text-xs tracking-wide">
         {!bootComplete ? (
-          <span className="text-muted-foreground">Initializing...</span>
+          <span className="text-marroc-salvia/70">Inicializando...</span>
         ) : isConnected ? (
-          <span className="text-green-400">System Online</span>
+          <span className="text-marroc-esmeralda">Sistema Online</span>
         ) : (
-          <span className="text-red-400">Reconnecting...</span>
+          <span className="text-red-400">Reconectando...</span>
         )}
       </span>
       {isConnected ? (
-        <Wifi className="w-3 h-3 text-green-400" />
+        <Wifi className="w-3 h-3 text-marroc-esmeralda" />
       ) : (
         <WifiOff className="w-3 h-3 text-red-400" />
       )}

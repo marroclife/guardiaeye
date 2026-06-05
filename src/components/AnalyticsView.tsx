@@ -16,17 +16,17 @@ export function AnalyticsView({ leads }: AnalyticsViewProps) {
   const statusDistribution = KANBAN_COLUMNS.map((col, index) => ({
     status: col.title,
     count: leads.filter(l => l.status === col.id).length,
-    color: index === 0 ? 'bg-neon-cyan' : 
+    color: index === 0 ? 'bg-marroc-esmeralda' : 
            index === 1 ? 'bg-blue-500' :
            index === 2 ? 'bg-orange-500' :
            index === 3 ? 'bg-yellow-500' :
-           index === 4 ? 'bg-purple-500' : 'bg-neon-green',
+           index === 4 ? 'bg-purple-500' : 'bg-marroc-salvia',
   }));
 
   const priorityDistribution = [
-    { priority: 'Alta', count: leads.filter(l => l.priority === 'high').length, color: 'text-destructive' },
+    { priority: 'Alta', count: leads.filter(l => l.priority === 'high').length, color: 'text-red-300' },
     { priority: 'Média', count: leads.filter(l => l.priority === 'medium').length, color: 'text-yellow-400' },
-    { priority: 'Baixa', count: leads.filter(l => l.priority === 'low').length, color: 'text-neon-green' },
+    { priority: 'Baixa', count: leads.filter(l => l.priority === 'low').length, color: 'text-marroc-salvia' },
   ];
 
   // Calculate value by status
@@ -47,22 +47,22 @@ export function AnalyticsView({ leads }: AnalyticsViewProps) {
         ].map((kpi, index) => (
           <div
             key={kpi.label}
-            className="glass-card p-5 rounded-lg border border-white/10 boot-fade-in"
+            className="glass-card p-5 rounded-lg border border-marroc-dourado/15 boot-fade-in"
             style={{ animationDelay: `${index * 100}ms` }}
           >
             <div className="flex items-center gap-3 mb-2">
-              <kpi.icon className="w-5 h-5 text-neon-cyan" />
-              <span className="text-sm text-muted-foreground">{kpi.label}</span>
+              <kpi.icon className="w-5 h-5 text-marroc-esmeralda" />
+              <span className="text-sm text-marroc-salvia/70">{kpi.label}</span>
             </div>
-            <p className="text-2xl font-bold font-mono text-foreground">{kpi.value}</p>
+            <p className="text-2xl font-display font-bold text-marroc-dourado">{kpi.value}</p>
           </div>
         ))}
       </div>
 
       {/* Distribuição por Status */}
-      <div className="glass-card p-6 rounded-lg border border-white/10 boot-fade-in" style={{ animationDelay: '200ms' }}>
-        <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-neon-purple" />
+      <div className="glass-card p-6 rounded-lg border border-marroc-dourado/15 boot-fade-in" style={{ animationDelay: '200ms' }}>
+        <h3 className="text-lg font-semibold text-marroc-texto mb-4 flex items-center gap-2">
+          <BarChart3 className="w-5 h-5 text-marroc-dourado" />
           Distribuição por Status
         </h3>
         <div className="space-y-4">
@@ -71,10 +71,10 @@ export function AnalyticsView({ leads }: AnalyticsViewProps) {
             return (
               <div key={item.status} className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{item.status}</span>
-                  <span className="font-mono text-foreground">{item.count} ({percentage}%)</span>
+                  <span className="text-marroc-salvia/70">{item.status}</span>
+                  <span className="font-display text-marroc-dourado">{item.count} ({percentage}%)</span>
                 </div>
-                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-2 bg-marroc-dourado/5 rounded-full overflow-hidden">
                   <div
                     className={`h-full ${item.color} transition-all duration-1000 ease-out`}
                     style={{ 
@@ -91,18 +91,18 @@ export function AnalyticsView({ leads }: AnalyticsViewProps) {
 
       {/* Valor por Etapa */}
       {valueByStatus.length > 0 && (
-        <div className="glass-card p-6 rounded-lg border border-white/10 boot-fade-in" style={{ animationDelay: '300ms' }}>
-          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-neon-green" />
+        <div className="glass-card p-6 rounded-lg border border-marroc-dourado/15 boot-fade-in" style={{ animationDelay: '300ms' }}>
+          <h3 className="text-lg font-semibold text-marroc-texto mb-4 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-marroc-salvia" />
             Valor por Etapa
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {valueByStatus.map((item) => (
-              <div key={item.status} className="text-center p-4 rounded-lg bg-white/5">
-                <p className="text-xl font-bold font-mono text-neon-green">
+              <div key={item.status} className="text-center p-4 rounded-lg bg-marroc-dourado/5">
+                <p className="text-xl font-display font-bold text-marroc-salvia">
                   R$ {item.value.toLocaleString('pt-BR')}
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">{item.status}</p>
+                <p className="text-sm text-marroc-salvia/70 mt-1">{item.status}</p>
               </div>
             ))}
           </div>
@@ -110,16 +110,16 @@ export function AnalyticsView({ leads }: AnalyticsViewProps) {
       )}
 
       {/* Distribuição por Prioridade */}
-      <div className="glass-card p-6 rounded-lg border border-white/10 boot-fade-in" style={{ animationDelay: '400ms' }}>
-        <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-          <PieChart className="w-5 h-5 text-neon-cyan" />
+      <div className="glass-card p-6 rounded-lg border border-marroc-dourado/15 boot-fade-in" style={{ animationDelay: '400ms' }}>
+        <h3 className="text-lg font-semibold text-marroc-texto mb-4 flex items-center gap-2">
+          <PieChart className="w-5 h-5 text-marroc-esmeralda" />
           Distribuição por Temperatura
         </h3>
         <div className="grid grid-cols-3 gap-4">
           {priorityDistribution.map((item) => (
-            <div key={item.priority} className="text-center p-4 rounded-lg bg-white/5">
-              <p className={`text-3xl font-bold font-mono ${item.color}`}>{item.count}</p>
-              <p className="text-sm text-muted-foreground mt-1">{item.priority}</p>
+            <div key={item.priority} className="text-center p-4 rounded-lg bg-marroc-dourado/5">
+              <p className={`text-3xl font-display font-bold ${item.color}`}>{item.count}</p>
+              <p className="text-sm text-marroc-salvia/70 mt-1">{item.priority}</p>
             </div>
           ))}
         </div>

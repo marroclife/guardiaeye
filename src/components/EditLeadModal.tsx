@@ -89,70 +89,70 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg glass-card border-white/10 bg-black/95 backdrop-blur-xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg glass-card border-marroc-dourado/15 bg-marroc-muscgo/95 backdrop-blur-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
-            <span className="text-neon-cyan">✎</span> Editar Lead
+          <DialogTitle className="text-xl font-display font-bold text-marroc-dourado flex items-center gap-2">
+            <span className="text-marroc-esmeralda">✎</span> Editar Lead
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm text-muted-foreground">Nome *</Label>
+              <Label htmlFor="name" className="text-sm text-marroc-salvia/70">Nome *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="bg-white/5 border-white/10 focus:border-neon-cyan"
+                className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="company" className="text-sm text-muted-foreground">Empresa</Label>
+              <Label htmlFor="company" className="text-sm text-marroc-salvia/70">Empresa</Label>
               <Input
                 id="company"
                 value={formData.company}
                 onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
-                className="bg-white/5 border-white/10 focus:border-neon-cyan"
+                className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="phone" className="text-sm text-muted-foreground">WhatsApp</Label>
+              <Label htmlFor="phone" className="text-sm text-marroc-salvia/70">WhatsApp</Label>
               <Input
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                className="bg-white/5 border-white/10 focus:border-neon-cyan"
+                className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
                 placeholder="+55 11 99999-9999"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
+              <Label htmlFor="email" className="text-sm text-marroc-salvia/70">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                className="bg-white/5 border-white/10 focus:border-neon-cyan"
+                className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">Origem</Label>
+              <Label className="text-sm text-marroc-salvia/70">Origem</Label>
               <Select
                 value={formData.source}
                 onValueChange={(value: LeadSource) => setFormData(prev => ({ ...prev, source: value }))}
               >
-                <SelectTrigger className="bg-white/5 border-white/10">
+                <SelectTrigger className="bg-marroc-dourado/5 border-marroc-dourado/15">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-black/95 border-white/10">
+                <SelectContent className="bg-marroc-muscgo/95 border-marroc-dourado/15">
                   {LEAD_SOURCES.map((source) => (
                     <SelectItem key={source.id} value={source.id}>
                       {source.icon} {source.label}
@@ -162,37 +162,37 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="website" className="text-sm text-muted-foreground">Website</Label>
+              <Label htmlFor="website" className="text-sm text-marroc-salvia/70">Website</Label>
               <Input
                 id="website"
                 value={formData.website}
                 onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
-                className="bg-white/5 border-white/10 focus:border-neon-cyan"
+                className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="value" className="text-sm text-muted-foreground">Valor (R$)</Label>
+              <Label htmlFor="value" className="text-sm text-marroc-salvia/70">Valor (R$)</Label>
               <Input
                 id="value"
                 type="number"
                 value={formData.value}
                 onChange={(e) => setFormData(prev => ({ ...prev, value: e.target.value }))}
-                className="bg-white/5 border-white/10 focus:border-neon-cyan"
+                className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">Temperatura</Label>
+              <Label className="text-sm text-marroc-salvia/70">Temperatura</Label>
               <Select
                 value={formData.priority}
                 onValueChange={(value: LeadPriority) => setFormData(prev => ({ ...prev, priority: value }))}
               >
-                <SelectTrigger className="bg-white/5 border-white/10">
+                <SelectTrigger className="bg-marroc-dourado/5 border-marroc-dourado/15">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-black/95 border-white/10">
+                <SelectContent className="bg-marroc-muscgo/95 border-marroc-dourado/15">
                   <SelectItem value="low">🥶 Frio</SelectItem>
                   <SelectItem value="medium">😐 Morno</SelectItem>
                   <SelectItem value="high">🔥 Quente</SelectItem>
@@ -200,15 +200,15 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">Status</Label>
+              <Label className="text-sm text-marroc-salvia/70">Status</Label>
               <Select
                 value={formData.status}
                 onValueChange={(value: LeadStatus) => setFormData(prev => ({ ...prev, status: value }))}
               >
-                <SelectTrigger className="bg-white/5 border-white/10">
+                <SelectTrigger className="bg-marroc-dourado/5 border-marroc-dourado/15">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-black/95 border-white/10">
+                <SelectContent className="bg-marroc-muscgo/95 border-marroc-dourado/15">
                   {KANBAN_COLUMNS.map((col) => (
                     <SelectItem key={col.id} value={col.id}>
                       {col.icon} {col.title}
@@ -220,28 +220,28 @@ export function EditLeadModal({ lead, open, onOpenChange, onSave }: EditLeadModa
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm text-muted-foreground">Observações</Label>
+            <Label className="text-sm text-marroc-salvia/70">Observações</Label>
             <Textarea
               value={formData.obs}
               onChange={(e) => setFormData(prev => ({ ...prev, obs: e.target.value }))}
-              className="bg-white/5 border-white/10 focus:border-neon-cyan min-h-[80px] resize-none"
+              className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda min-h-[80px] resize-none"
               placeholder="Notas e observações sobre o lead..."
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+          <div className="flex justify-end gap-3 pt-4 border-t border-marroc-dourado/15">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="border-white/10"
+              className="border-marroc-dourado/15"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={saving || !formData.name}
-              className="bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/50 hover:bg-neon-cyan/30"
+              className="bg-marroc-esmeralda/20 text-marroc-esmeralda border border-marroc-esmeralda/50 hover:bg-marroc-esmeralda/30"
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />

@@ -1,70 +1,88 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ======================================================
+   NEXO's Eye — Ecossistema Marroc
+   Paleta herdada do marroc.xyz
+   - Verde-musgo profundo (#0b1f18)
+   - Dourado champanhe (#d1c596)
+   - Verde esmeralda (#3cb878)
+   - Verde-sálvia claro (#b3caa1)
+   ====================================================== */
+
 @layer base {
   :root {
-    /* Cyberpunk Executive Theme */
-    --background: 0 0% 1.2%;
-    --foreground: 0 0% 95%;
+    /* === Marroc Ecosystem Palette (HSL) === */
+    --background: 165 47% 8%;          /* #0b1f18 verde-musgo */
+    --foreground: 0 0% 96%;            /* #f5f5f5 off-white */
 
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 95%;
+    --card: 165 30% 11%;               /* um pouco mais claro que o bg */
+    --card-foreground: 0 0% 96%;
 
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 165 30% 11%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 185 100% 50%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 152 51% 45%;            /* #3cb878 esmeralda */
+    --primary-foreground: 165 47% 8%;
 
-    --secondary: 270 60% 55%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 47 41% 71%;           /* #d1c596 dourado champanhe */
+    --secondary-foreground: 165 47% 8%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 165 20% 18%;              /* tom mais escuro */
+    --muted-foreground: 47 25% 75%;    /* #b3caa1 sálvia */
 
-    --accent: 185 100% 50%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 152 51% 45%;
+    --accent-foreground: 165 47% 8%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 185 100% 50%;
+    --border: 47 25% 30% / 0.2;
+    --input: 165 20% 18%;
+    --ring: 152 51% 45%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    /* Custom Cyberpunk Colors */
-    --neon-cyan: 185 100% 50%;
-    --neon-purple: 270 80% 60%;
-    --neon-pink: 330 90% 60%;
-    --neon-green: 145 100% 45%;
-    --neon-orange: 25 100% 55%;
+    /* === Tokens semânticos Marroc === */
+    --marroc-muscgo: #0b1f18;
+    --marroc-dourado: #d1c596;
+    --marroc-esmeralda: #3cb878;
+    --marroc-salvia: #b3caa1;
+    --marroc-texto: #f5f5f5;
 
-    /* Temperature Colors */
-    --temp-cold: 210 90% 55%;
-    --temp-warm: 35 100% 55%;
-    --temp-hot: 0 90% 55%;
+    /* === Compatibilidade "neon" (legado) ===
+       Os componentes do CRM usam text-neon-cyan, etc.
+       Remapeei pra paleta Marroc pra não quebrar o layout. */
+    --neon-cyan: 152 51% 45%;          /* = esmeralda (era ciano elétrico) */
+    --neon-purple: 47 41% 71%;         /* = dourado (era roxo) */
+    --neon-pink: 47 25% 75%;           /* = sálvia (era rosa) */
+    --neon-green: 47 25% 75%;          /* = sálvia (era verde neon) */
+    --neon-orange: 47 41% 71%;         /* = champanhe (era laranja) */
 
-    /* Glass Effect */
-    --glass-bg: 0 0% 0% / 0.4;
-    --glass-border: 0 0% 100% / 0.1;
+    /* Temperatura de leads (mantida com leve ajuste) */
+    --temp-cold: 210 40% 60%;
+    --temp-warm: 47 60% 65%;
+    --temp-hot: 152 60% 55%;
 
-    /* Terminal */
-    --terminal-green: 145 100% 45%;
+    /* Glass dourado sutil */
+    --glass-bg: 165 47% 8% / 0.6;
+    --glass-border: 47 25% 75% / 0.12;
+
+    /* Terminal = esmeralda Marroc */
+    --terminal-green: 152 51% 45%;
 
     /* Sidebar */
-    --sidebar-background: 0 0% 3%;
+    --sidebar-background: 165 47% 7%;  /* um pouco mais escuro que o bg */
     --sidebar-foreground: 0 0% 80%;
-    --sidebar-primary: 185 100% 50%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 10%;
+    --sidebar-primary: 152 51% 45%;
+    --sidebar-primary-foreground: 165 47% 8%;
+    --sidebar-accent: 165 30% 12%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 12%;
-    --sidebar-ring: 185 100% 50%;
+    --sidebar-border: 47 25% 30% / 0.2;
+    --sidebar-ring: 152 51% 45%;
   }
 }
 
@@ -73,45 +91,58 @@
     @apply border-border;
   }
 
+  html, body, #root {
+    min-height: 100%;
+  }
+
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    @apply antialiased;
+    background-color: var(--marroc-muscgo);
+    color: var(--marroc-texto);
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
   }
 
-  /* Grid Background Pattern */
-  .grid-pattern {
-    background-image: 
-      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 50px 50px;
-  }
-
-  /* Mono Font for Numbers */
-  .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: var(--marroc-dourado);
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
 }
 
 @layer components {
-  /* Glassmorphism Card */
+  /* Card glass dourado (substitui glass-card cyberpunk) */
   .glass-card {
-    @apply bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl;
+    @apply rounded-xl;
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--glass-border));
   }
 
-  /* Neon Glow Effects */
+  /* Substitui o gradient-pattern cyber por padrão Marroc sutil */
+  .grid-pattern {
+    background-image:
+      linear-gradient(rgba(209, 197, 150, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(209, 197, 150, 0.025) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Neon effects agora usam esmeralda Marroc */
   .neon-glow-cyan {
-    box-shadow: 0 0 20px hsl(var(--neon-cyan) / 0.3),
+    box-shadow: 0 0 20px hsl(var(--neon-cyan) / 0.25),
                 0 0 40px hsl(var(--neon-cyan) / 0.1);
   }
 
   .neon-glow-purple {
-    box-shadow: 0 0 20px hsl(var(--neon-purple) / 0.3),
+    box-shadow: 0 0 20px hsl(var(--neon-purple) / 0.25),
                 0 0 40px hsl(var(--neon-purple) / 0.1);
-  }
-
-  /* Gradient Border */
-  .gradient-border {
-    position: relative;
   }
 
   .gradient-border::before {
@@ -127,76 +158,58 @@
     mask-composite: exclude;
   }
 
-  /* Neon Button */
   .btn-neon {
-    @apply relative overflow-hidden bg-gradient-to-r from-cyan-500 to-purple-600 
-           text-black font-semibold px-6 py-2 rounded-lg transition-all duration-300;
+    @apply relative overflow-hidden font-semibold px-6 py-2 rounded-lg transition-all duration-300;
+    background: linear-gradient(135deg, hsl(var(--neon-cyan)), hsl(var(--neon-purple)));
+    color: hsl(var(--primary-foreground));
   }
 
   .btn-neon:hover {
-    box-shadow: 0 0 30px hsl(var(--neon-cyan) / 0.5),
-                0 0 60px hsl(var(--neon-purple) / 0.3);
-    transform: translateY(-2px);
+    box-shadow: 0 0 25px hsl(var(--neon-cyan) / 0.4);
+    transform: translateY(-1px);
   }
 
-  /* Terminal Text */
   .terminal-text {
     @apply font-mono text-sm leading-relaxed;
     color: hsl(var(--terminal-green));
-    text-shadow: 0 0 10px hsl(var(--terminal-green) / 0.5);
-  }
-
-  /* Pulse Animation for Status */
-  .pulse-green {
-    @apply relative;
+    text-shadow: 0 0 10px hsl(var(--terminal-green) / 0.3);
   }
 
   .pulse-green::before {
     content: '';
-    @apply absolute w-2 h-2 bg-green-500 rounded-full;
+    @apply absolute w-2 h-2 rounded-full;
+    background: hsl(var(--terminal-green));
     animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
   @keyframes pulse-ring {
-    0%, 100% {
-      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-    }
-    50% {
-      box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
-    }
+    0%, 100% { box-shadow: 0 0 0 0 hsl(152 51% 45% / 0.6); }
+    50%      { box-shadow: 0 0 0 8px hsl(152 51% 45% / 0); }
   }
 
-  /* Kanban Card Drag Animation */
   .kanban-card {
     @apply glass-card cursor-grab transition-all duration-200;
   }
 
   .kanban-card:hover {
-    @apply border-white/20;
+    border-color: hsl(var(--neon-cyan) / 0.3);
     transform: translateY(-2px);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 30px rgba(11, 31, 24, 0.6);
   }
 
   .kanban-card.dragging {
     @apply cursor-grabbing opacity-90 scale-105;
-    box-shadow: 0 20px 60px rgba(0, 240, 255, 0.2);
+    box-shadow: 0 20px 60px hsl(var(--neon-cyan) / 0.2);
   }
 
-  /* Boot Animation */
   .boot-fade-in {
     animation: bootFadeIn 0.6s ease-out forwards;
     opacity: 0;
   }
 
   @keyframes bootFadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   .boot-delay-1 { animation-delay: 0.1s; }
@@ -205,34 +218,40 @@
   .boot-delay-4 { animation-delay: 0.4s; }
   .boot-delay-5 { animation-delay: 0.5s; }
 
-  /* Temperature Tags */
   .temp-tag-cold {
-    @apply bg-blue-500/20 text-blue-400 border border-blue-500/30;
+    @apply bg-blue-500/15 text-blue-300 border border-blue-500/30;
   }
-
   .temp-tag-warm {
-    @apply bg-orange-500/20 text-orange-400 border border-orange-500/30;
+    @apply bg-amber-500/15 text-amber-200 border border-amber-500/30;
   }
-
   .temp-tag-hot {
-    @apply bg-red-500/20 text-red-400 border border-red-500/30;
+    @apply bg-emerald-500/15 text-emerald-300 border border-emerald-500/30;
   }
 
-  /* Scrollbar Styling */
+  /* Scrollbar discreto */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
-
   ::-webkit-scrollbar-track {
-    @apply bg-black/20;
+    background: rgba(11, 31, 24, 0.4);
   }
-
   ::-webkit-scrollbar-thumb {
-    @apply bg-white/10 rounded-full;
+    background: hsl(47 25% 30% / 0.4);
+    border-radius: 999px;
   }
-
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-white/20;
+    background: hsl(47 25% 30% / 0.6);
   }
+}
+
+@layer utilities {
+  .text-marroc-dourado { color: var(--marroc-dourado); }
+  .text-marroc-esmeralda { color: var(--marroc-esmeralda); }
+  .text-marroc-salvia { color: var(--marroc-salvia); }
+  .text-marroc-muscgo { color: var(--marroc-muscgo); }
+  .bg-marroc-muscgo { background-color: var(--marroc-muscgo); }
+  .bg-marroc-dourado { background-color: var(--marroc-dourado); }
+  .bg-marroc-esmeralda { background-color: var(--marroc-esmeralda); }
+  .border-marroc-dourado { border-color: var(--marroc-dourado); }
 }
