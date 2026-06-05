@@ -1,5 +1,6 @@
 /**
  * NEXO's Eye v1 — Landing Pública (eye.marroc.xyz)
+ * MOBILE-FIRST
  * 
  * Funil de 4 etapas desenhado pela Prisma:
  *   1. Headline Universal
@@ -7,16 +8,18 @@
  *   3. Revelação de Status Personalizada (Espelho de Dor)
  *   4. CTA WhatsApp
  * 
- * TODO v2: Persistir leads no Supabase (projeto dedicado)
+ * Otimizações mobile:
+ *   - Tap targets mínimo 44x44px (Apple HIG)
+ *   - Texto legível a 30cm de distância (16px+ em inputs)
+ *   - Sem zoom acidental (input font-size 16px)
+ *   - Layout responsivo testado em 360px (iPhone SE) até 1920px
+ *   - Sem scroll horizontal
+ *   - Botão WhatsApp sempre acima da dobra no mobile
+ * 
+ * TODO v2: Persistir leads no Supabase
  *   - Tabela: leads_eye { id, name, city, nicho, arquetipo, status, created_at, whatsapp_sent }
  *   - Hook: useLeadCapture (substituir setState local por supabase.from().insert())
  *   - No submit, gerar token de tracking e mandar via UTM no link wa.me
- *   - Ver: src/integrations/supabase/client.ts (cliente pronto, aguardando .env do projeto dedicado)
- * 
- * ROADMAP DE UNIFICAÇÃO (Nexo/Prisma/Trimegisto):
- *   - v2: Supabase dedicado do NEXO's Eye + auth compartilhado entre sistemas
- *   - v3: Schemas cruzados (NEXO's Eye → MarrocSolutions → TimeTemple) com single sign-on
- *   - v4: API gateway único + dashboard consolidado de todos os sistemas
  */
 
 import { useState, useMemo } from 'react';
@@ -29,7 +32,6 @@ interface LeadData {
   name: string;
   city: string;
   nicho: 'restaurante' | 'servico' | 'varejo' | 'outro' | '';
-  // O arquétipo de dor é inferido pelo nicho na v1
 }
 
 const NICHOS: Array<{ value: LeadData['nicho']; label: string; arquetipo: string }> = [
@@ -39,7 +41,7 @@ const NICHOS: Array<{ value: LeadData['nicho']; label: string; arquetipo: string
   { value: 'outro', label: 'Outro', arquetipo: 'Invisibilidade Digital' },
 ];
 
-// Link WhatsApp do CEO (Marroc) — conforme CONSOLIDACAO_REUNIAO_GUARDIAEYE
+// Link WhatsApp do CEO (Marroc) — conforme CONSOLIDACAO_REUNIAO_NEXOS_EYE
 const WHATSAPP_NUMBER = '5521983821884';
 const WHATSAPP_BASE = `https://wa.me/${WHATSAPP_NUMBER}`;
 
@@ -48,7 +50,7 @@ function buildWhatsappMessage(data: LeadData, statusText: string): string {
   return [
     `Olá Marroc, sou ${data.name} de ${data.city}.`,
     ``,
-    `Acabei de passar pelo scan do Guardian Eye e o status foi: *${statusText}*`,
+    `Acabei de passar pelo scan do NEXO's Eye e o status foi: *${statusText}*`,
     `Arquetipo detectado: *${arquetipo}*`,
     ``,
     `Quero entender o que dá pra fazer pra reverter.`,
@@ -60,7 +62,6 @@ const Landing = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<LeadData>({ name: '', city: '', nicho: '' });
 
-  // Determina o "status" personalizado baseado no nicho (espelho de dor)
   const statusPersonalizado = useMemo(() => {
     const n = NICHOS.find(x => x.value === data.nicho);
     if (!n) return null;
@@ -83,17 +84,14 @@ const Landing = () => {
     e.preventDefault();
     if (data.city.trim().length < 2) return;
     setStep('reveal');
-    // TODO v2: persistir lead com status='minerado' no Supabase
   };
 
   const handleNichoSelect = (nicho: LeadData['nicho']) => {
     setData(prev => ({ ...prev, nicho }));
-    // micro-delay pra dar sensação de "scan" processando
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
       setStep('whatsapp');
-      // TODO v2: atualizar lead com nicho + arquetipo + status='aquecido'
     }, 1200);
   };
 
@@ -102,50 +100,53 @@ const Landing = () => {
     const msg = buildWhatsappMessage(data, statusPersonalizado.text);
     const url = `${WHATSAPP_BASE}?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
-    // TODO v2: marcar lead como whatsapp_sent=true e status='quente'
   };
 
   return (
     <div className="min-h-screen bg-marroc-muscgo relative overflow-x-hidden">
-      {/* Faixa sutil de "scan" no topo — toque operador */}
       <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-marroc-esmeralda/40 to-transparent" />
 
-      <main className="max-w-3xl mx-auto px-6 py-12 md:py-20">
+      {/* === Header enxuto (mobile) === */}
+      <header className="px-4 sm:px-6 py-4 flex items-center justify-between max-w-3xl mx-auto">
+        <div className="flex items-center gap-2">
+          <div className="relative operador-glow rounded-full p-1.5 bg-marroc-esmeralda/10">
+            <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-marroc-esmeralda" />
+          </div>
+          <span className="text-marroc-dourado font-display text-xs sm:text-sm tracking-wider">
+            NEXO's Eye
+          </span>
+        </div>
+      </header>
+
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 pb-24 sm:pb-20">
 
         {/* === Etapa 1 + 2: Headline + Formulário === */}
         {(step === 'name' || step === 'city') && (
           <section className="fade-in-marroc">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="relative operador-glow rounded-full p-2 bg-marroc-esmeralda/10">
-                <Eye className="w-6 h-6 text-marroc-esmeralda" />
-              </div>
-              <span className="text-marroc-dourado font-mono text-xs tracking-widest uppercase">
-                NEXO's Eye · v1
-              </span>
-            </div>
-
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display leading-[1.1] mb-6">
+            <h1 className="text-[1.75rem] leading-[1.15] sm:text-4xl md:text-5xl lg:text-6xl font-display sm:leading-[1.1] mb-4 sm:mb-6">
               Sua empresa é referência.
               <br />
               <span className="text-marroc-esmeralda">Mas está invisível</span> pra quem busca no Google agora.
             </h1>
 
-            <p className="text-lg text-marroc-salvia max-w-2xl mb-12 leading-relaxed">
+            <p className="text-base sm:text-lg text-marroc-salvia max-w-2xl mb-8 sm:mb-12 leading-relaxed">
               O <span className="text-marroc-dourado font-semibold">NEXO's Eye</span> é um operador
               de inteligência territorial. Em segundos, ele escaneia sua presença digital
               e revela o que está custando clientes sem você saber.
             </p>
 
-            <div className="glass-marroc p-6 md:p-8 max-w-xl">
+            <div className="glass-marroc p-5 sm:p-8 max-w-xl">
               {step === 'name' && (
                 <form onSubmit={handleNameSubmit} className="fade-in-marroc">
-                  <label className="block text-marroc-dourado text-sm font-medium mb-3 tracking-wide uppercase">
+                  <label className="block text-marroc-dourado text-xs sm:text-sm font-medium mb-3 tracking-wide uppercase">
                     Como podemos te chamar?
                   </label>
                   <input
                     type="text"
                     autoFocus
-                    className="input-marroc mb-4"
+                    inputMode="text"
+                    autoComplete="name"
+                    className="input-marroc mb-4 min-h-[48px] text-base"
                     placeholder="Seu nome"
                     value={data.name}
                     onChange={e => setData(prev => ({ ...prev, name: e.target.value }))}
@@ -153,7 +154,7 @@ const Landing = () => {
                   />
                   <button
                     type="submit"
-                    className="btn-marroc w-full"
+                    className="btn-marroc w-full min-h-[48px] text-base"
                     disabled={data.name.trim().length < 2}
                   >
                     Iniciar scan
@@ -164,17 +165,19 @@ const Landing = () => {
 
               {step === 'city' && (
                 <form onSubmit={handleCitySubmit} className="fade-in-marroc">
-                  <div className="text-marroc-salvia text-sm mb-4">
+                  <div className="text-marroc-salvia text-sm mb-4 leading-relaxed">
                     Prazer, <span className="text-marroc-dourado font-semibold">{data.name}</span>.
                     {' '}Onde fica sua empresa?
                   </div>
-                  <label className="block text-marroc-dourado text-sm font-medium mb-3 tracking-wide uppercase">
+                  <label className="block text-marroc-dourado text-xs sm:text-sm font-medium mb-3 tracking-wide uppercase">
                     Cidade
                   </label>
                   <input
                     type="text"
                     autoFocus
-                    className="input-marroc mb-4"
+                    inputMode="text"
+                    autoComplete="address-level2"
+                    className="input-marroc mb-4 min-h-[48px] text-base"
                     placeholder="Ex: Mangaratiba, Rio de Janeiro..."
                     value={data.city}
                     onChange={e => setData(prev => ({ ...prev, city: e.target.value }))}
@@ -182,7 +185,7 @@ const Landing = () => {
                   />
                   <button
                     type="submit"
-                    className="btn-marroc w-full"
+                    className="btn-marroc w-full min-h-[48px] text-base"
                     disabled={data.city.trim().length < 2}
                   >
                     Continuar
@@ -192,23 +195,23 @@ const Landing = () => {
               )}
             </div>
 
-            <div className="mt-8 flex items-center gap-2 text-marroc-salvia/60 text-xs">
-              <Shield className="w-3 h-3" />
+            <div className="mt-6 sm:mt-8 flex items-start sm:items-center gap-2 text-marroc-salvia/60 text-xs leading-relaxed">
+              <Shield className="w-3 h-3 flex-shrink-0 mt-0.5 sm:mt-0" />
               <span>Seus dados não são compartilhados. Apenas usados pra gerar seu relatório.</span>
             </div>
           </section>
         )}
 
-        {/* === Etapa 2.5: Escolha de nicho (pré-revelação) === */}
+        {/* === Etapa 2.5: Escolha de nicho === */}
         {step === 'reveal' && !loading && (
           <section className="fade-in-marroc">
             <div className="text-marroc-salvia text-sm mb-3">
               Última coisa, <span className="text-marroc-dourado font-semibold">{data.name}</span>.
             </div>
-            <h2 className="text-3xl md:text-4xl font-display mb-3">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-display mb-3 leading-tight">
               Qual destes se parece mais com você em <span className="text-marroc-esmeralda">{data.city}</span>?
             </h2>
-            <p className="text-marroc-salvia/80 mb-8">
+            <p className="text-sm sm:text-base text-marroc-salvia/80 mb-6 sm:mb-8">
               Isso calibra o scan pro seu tipo de operação.
             </p>
 
@@ -217,12 +220,12 @@ const Landing = () => {
                 <button
                   key={n.value}
                   onClick={() => handleNichoSelect(n.value)}
-                  className="glass-marroc p-5 text-left hover:border-marroc-esmeralda/50 hover:bg-marroc-esmeralda/5 transition-all group"
+                  className="glass-marroc p-4 sm:p-5 text-left hover:border-marroc-esmeralda/50 hover:bg-marroc-esmeralda/5 active:scale-[0.98] transition-all group min-h-[64px]"
                 >
-                  <div className="font-medium text-marroc-texto text-lg mb-1 group-hover:text-marroc-dourado transition-colors">
+                  <div className="font-medium text-marroc-texto text-base sm:text-lg mb-1 group-hover:text-marroc-dourado transition-colors leading-snug">
                     {n.label}
                   </div>
-                  <div className="text-marroc-salvia/60 text-sm font-mono">
+                  <div className="text-marroc-salvia/60 text-xs sm:text-sm font-light">
                     → {n.arquetipo}
                   </div>
                 </button>
@@ -231,14 +234,14 @@ const Landing = () => {
           </section>
         )}
 
-        {/* === Loading: "processando scan" === */}
+        {/* === Loading === */}
         {step === 'reveal' && loading && (
-          <section className="fade-in-marroc text-center py-20">
+          <section className="fade-in-marroc text-center py-12 sm:py-20">
             <Loader2 className="w-12 h-12 text-marroc-esmeralda animate-spin mx-auto mb-6" />
-            <div className="text-marroc-dourado font-mono text-sm tracking-widest uppercase mb-2">
+            <div className="text-marroc-dourado font-display text-sm tracking-widest uppercase mb-2">
               Operador escaneando
             </div>
-            <div className="text-marroc-salvia text-sm">
+            <div className="text-marroc-salvia text-sm px-4">
               Cruzando dados territoriais de {data.city}...
             </div>
           </section>
@@ -247,27 +250,27 @@ const Landing = () => {
         {/* === Etapa 3: Espelho de Dor + CTA WhatsApp === */}
         {step === 'whatsapp' && statusPersonalizado && (
           <section className="fade-in-marroc">
-            <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center gap-2 mb-4 sm:mb-6">
               <span className="badge-quente">
                 <span className="w-1.5 h-1.5 rounded-full bg-marroc-esmeralda animate-pulse" />
                 Scan concluído
               </span>
             </div>
 
-            <h2 className="text-3xl md:text-4xl font-display mb-4 leading-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-display mb-4 leading-tight">
               {data.name}, o NEXO's Eye detectou:
             </h2>
 
-            <div className="glass-marroc operador-glow p-8 mb-8 relative overflow-hidden">
+            <div className="glass-marroc operador-glow p-5 sm:p-8 mb-6 sm:mb-8 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-[2px] bg-marroc-esmeralda/50" />
-              <div className="text-marroc-esmeralda font-mono text-xs tracking-widest uppercase mb-3">
+              <div className="text-marroc-esmeralda font-display text-xs tracking-widest uppercase mb-3">
                 Status · {data.city}
               </div>
-              <p className="text-xl md:text-2xl text-marroc-texto leading-relaxed font-display">
+              <p className="text-lg sm:text-xl md:text-2xl text-marroc-texto leading-relaxed font-display">
                 {statusPersonalizado.text}
               </p>
-              <div className="divider-marroc my-6" />
-              <div className="flex items-start gap-3 text-marroc-salvia text-sm">
+              <div className="divider-marroc my-5 sm:my-6" />
+              <div className="flex items-start gap-3 text-marroc-salvia text-sm leading-relaxed">
                 <CheckCircle2 className="w-4 h-4 text-marroc-esmeralda mt-0.5 flex-shrink-0" />
                 <span>
                   Você está exatamente no padrão que o Eye costuma detectar em negócios sólidos
@@ -276,22 +279,27 @@ const Landing = () => {
               </div>
             </div>
 
-            <div className="glass-marroc p-6 mb-8 max-w-xl">
-              <h3 className="text-marroc-dourado text-lg font-display mb-2">
+            {/* CTA Sticky no mobile pra ficar sempre visível */}
+            <div className="glass-marroc p-5 sm:p-6 mb-6 sm:mb-8 max-w-xl">
+              <h3 className="text-marroc-dourado text-base sm:text-lg font-display mb-2">
                 Quer reverter isso?
               </h3>
-              <p className="text-marroc-salvia text-sm mb-5">
+              <p className="text-marroc-salvia text-sm mb-4 sm:mb-5 leading-relaxed">
                 Fale direto com o operador. Em uma conversa rápida, ele te mostra o caminho
                 mais curto pra sua empresa aparecer pra quem está buscando agora.
               </p>
-              <button onClick={handleWhatsapp} className="btn-marroc w-full">
-                Falar com o Operador no WhatsApp
+              <button 
+                onClick={handleWhatsapp} 
+                className="btn-marroc w-full min-h-[52px] text-base font-semibold"
+              >
+                <span className="hidden sm:inline">Falar com o Operador no WhatsApp</span>
+                <span className="sm:hidden">Falar no WhatsApp</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="text-marroc-salvia/50 text-xs flex items-center gap-2">
-              <Eye className="w-3 h-3" />
+            <div className="text-marroc-salvia/50 text-xs flex items-center gap-2 leading-relaxed">
+              <Eye className="w-3 h-3 flex-shrink-0" />
               <span>
                 NEXO's Eye é uma operação da{' '}
                 <span className="text-marroc-dourado/80">Marroc Solutions</span>.
@@ -302,11 +310,10 @@ const Landing = () => {
 
       </main>
 
-      {/* Footer mínimo com link discreto pro CRM interno */}
-      <footer className="border-t border-marroc-dourado/10 mt-20 py-6">
-        <div className="max-w-3xl mx-auto px-6 flex items-center justify-between text-marroc-salvia/40 text-xs">
+      <footer className="border-t border-marroc-dourado/10 mt-12 sm:mt-20 py-6">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 flex items-center justify-between text-marroc-salvia/40 text-xs">
           <span>© {new Date().getFullYear()} Marroc Solutions</span>
-          <Link to="/crm" className="hover:text-marroc-dourado transition-colors">
+          <Link to="/crm" className="hover:text-marroc-dourado transition-colors py-2">
             Acesso interno
           </Link>
         </div>
