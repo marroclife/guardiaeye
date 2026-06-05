@@ -43,8 +43,8 @@ const WHITELIST_MARROC = [
 ];
 
 const WHITELIST_EQUIPE = [
-  '+5522999336645',  // Luiz Silva — gestor de vendas NEXO's Eye
-  // Futuros operadores vão aqui (sombra-dev, mercurial, prisma, vektra, etc.)
+  '+5522999336645',  // Luiz Silva — colaborador Marroc Solutions / gestor vendas NEXO's Eye
+  // Futuros colaboradores vão aqui (sombra-dev, mercurial, prisma, vektra, etc.)
 ];
 
 const WHITELIST_FAMILIA = [
