@@ -24,6 +24,7 @@ import {
   Clock,
   Tag,
   RefreshCw,
+  FolderPlus,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -36,6 +37,8 @@ interface LeadDetailSheetProps {
   onEdit: (lead: Lead) => void;
   onAnalyze: (lead: Lead) => Promise<string | null>;
   onUpdateLastContact?: (leadId: string) => void;
+  onCreateProject?: (lead: Lead) => void;
+  hasProject?: boolean;
 }
 
 const priorityConfig: Record<LeadPriority, { label: string; className: string }> = {
@@ -52,6 +55,8 @@ export function LeadDetailSheet({
   onEdit,
   onAnalyze,
   onUpdateLastContact,
+  onCreateProject,
+  hasProject,
 }: LeadDetailSheetProps) {
   const [activeTab, setActiveTab] = useState('dados');
   const [analyzing, setAnalyzing] = useState(false);
@@ -248,6 +253,19 @@ export function LeadDetailSheet({
           </TabsContent>
 
           <TabsContent value="acoes" className="mt-6 space-y-3">
+            {lead.status === 'fechado' && !hasProject && onCreateProject && (
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-3 h-12 border-marroc-dourado/15 hover:bg-marroc-esmeralda/10 hover:border-marroc-esmeralda/50"
+                onClick={() => {
+                  onCreateProject(lead);
+                  onOpenChange(false);
+                }}
+              >
+                <FolderPlus className="w-4 h-4 text-marroc-esmeralda" />
+                Criar Projeto
+              </Button>
+            )}
             {onUpdateLastContact && (
               <Button
                 variant="outline"

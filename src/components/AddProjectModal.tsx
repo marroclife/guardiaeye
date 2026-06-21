@@ -19,35 +19,51 @@ import {
 } from '@/components/ui/select';
 import { Plus, Loader2 } from 'lucide-react';
 
-interface ClosedLead {
+export interface ClosedLead {
   id: string;
   name: string;
   company: string | null;
   phone: string | null;
 }
 
-interface AddProjectModalProps {
-  onAdd: (project: {
-    lead_id: string;
-    contract_number: string | null;
-    start_date: string | null;
-    deadline: string | null;
-    features: string[];
-    notes: string | null;
-    status: 'briefing';
-    position: number;
-  }) => void;
-  getClosedLeads: () => Promise<ClosedLead[]>;
+export interface ProjectDraft {
+  lead_id: string;
+  contract_number: string | null;
+  start_date: string | null;
+  deadline: string | null;
+  features: string[];
+  notes: string | null;
+  status: 'briefing';
+  position: number;
 }
 
-export function AddProjectModal({ onAdd, getClosedLeads }: AddProjectModalProps) {
-  const [open, setOpen] = useState(false);
+interface AddProjectModalProps {
+  onAdd: (project: ProjectDraft) => void;
+  getClosedLeads: () => Promise<ClosedLead[]>;
+  initialLeadId?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactNode;
+}
+
+export function AddProjectModal({
+  onAdd,
+  getClosedLeads,
+  initialLeadId,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  trigger,
+}: AddProjectModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = controlledOnOpenChange || setInternalOpen;
+
   const [closedLeads, setClosedLeads] = useState<ClosedLead[]>([]);
   const [loadingLeads, setLoadingLeads] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
-    lead_id: '',
+    lead_id: initialLeadId || '',
     contract_number: '',
     start_date: '',
     deadline: '',
@@ -61,13 +77,28 @@ export function AddProjectModal({ onAdd, getClosedLeads }: AddProjectModalProps)
       getClosedLeads()
         .then((leads) => {
           setClosedLeads(leads);
-          if (leads.length === 1) {
+          if (initialLeadId && leads.some((l) => l.id === initialLeadId)) {
+            setFormData((prev) => ({ ...prev, lead_id: initialLeadId }));
+          } else if (leads.length === 1) {
             setFormData((prev) => ({ ...prev, lead_id: leads[0].id }));
           }
         })
         .finally(() => setLoadingLeads(false));
     }
-  }, [open, getClosedLeads]);
+  }, [open, getClosedLeads, initialLeadId]);
+
+  useEffect(() => {
+    if (!open) {
+      setFormData({
+        lead_id: '',
+        contract_number: '',
+        start_date: '',
+        deadline: '',
+        features: '',
+        notes: '',
+      });
+    }
+  }, [open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,14 +120,6 @@ export function AddProjectModal({ onAdd, getClosedLeads }: AddProjectModalProps)
         position: 0,
       });
 
-      setFormData({
-        lead_id: '',
-        contract_number: '',
-        start_date: '',
-        deadline: '',
-        features: '',
-        notes: '',
-      });
       setOpen(false);
     } finally {
       setSaving(false);
@@ -107,12 +130,15 @@ export function AddProjectModal({ onAdd, getClosedLeads }: AddProjectModalProps)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="btn-marroc">
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Projeto
-        </Button>
-      </DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      {!trigger && (
+        <DialogTrigger asChild>
+          <Button className="btn-marroc">
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Projeto
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="glass-card border-marroc-dourado/15 bg-marroc-muscgo/95 backdrop-blur-xl sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-display font-bold text-marroc-dourado">

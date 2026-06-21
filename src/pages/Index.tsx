@@ -12,7 +12,9 @@ import { AnalyticsView } from '@/components/AnalyticsView';
 import { SettingsView } from '@/components/SettingsView';
 import { HelpView } from '@/components/HelpView';
 import { ProjectsView } from '@/components/ProjectsView';
+import { AddProjectModal } from '@/components/AddProjectModal';
 import { useLeads } from '@/hooks/useLeads';
+import { useProjects } from '@/hooks/useProjects';
 import { Lead, KANBAN_COLUMNS } from '@/types/lead';
 import { Users, TrendingUp, Bell, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,10 +31,13 @@ const Index = () => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
+  const [projectModalOpen, setProjectModalOpen] = useState(false);
+  const [projectInitialLeadId, setProjectInitialLeadId] = useState<string | undefined>(undefined);
+
   const {
     leads,
-    loading,
-    isConnected,
+    loading: leadsLoading,
+    isConnected: leadsConnected,
     updateLeadStatus,
     updateLead,
     updateLastContact,
@@ -44,6 +49,12 @@ const Index = () => {
     processStaleLeads,
     reorderLeads,
   } = useLeads();
+
+  const {
+    projects,
+    createProject,
+    getClosedLeadsWithoutProject,
+  } = useProjects();
 
   // Process stale leads on mount and periodically
   useEffect(() => {
@@ -57,6 +68,11 @@ const Index = () => {
   // Separate active and archived leads
   const activeLeads = useMemo(() => leads.filter(l => !l.archived), [leads]);
   const archivedLeads = useMemo(() => leads.filter(l => l.archived), [leads]);
+
+  // Track which leads already have projects
+  const leadIdsWithProject = useMemo(() => {
+    return new Set(projects.map((p) => p.lead_id));
+  }, [projects]);
 
   // Group leads by status, sorted by position
   const leadsByStatus = useMemo(() => {
@@ -90,6 +106,22 @@ const Index = () => {
 
   const handleDrop = (leadId: string, newStatus: Lead['status'], newPosition?: number) => {
     updateLeadStatus(leadId, newStatus, newPosition);
+
+    // If lead moved to "fechado", offer to create a project
+    if (newStatus === 'fechado') {
+      const lead = leads.find((l) => l.id === leadId);
+      if (lead && !leadIdsWithProject.has(lead.id)) {
+        setProjectInitialLeadId(lead.id);
+        setProjectModalOpen(true);
+      }
+    }
+  };
+
+  const handleCreateProjectFromLead = (lead: Lead) => {
+    if (!leadIdsWithProject.has(lead.id)) {
+      setProjectInitialLeadId(lead.id);
+      setProjectModalOpen(true);
+    }
   };
 
   const handleReorder = (reorderedLeads: { id: string; position: number }[]) => {
@@ -128,6 +160,9 @@ const Index = () => {
       />
     );
   };
+
+  const loading = leadsLoading;
+  const isConnected = leadsConnected;
 
   return (
     <div className="flex min-h-screen bg-marroc-muscgo grid-pattern pt-14 md:pt-0">
@@ -269,6 +304,8 @@ const Index = () => {
         onEdit={handleEditLead}
         onAnalyze={analyzeLeadWithAI}
         onUpdateLastContact={updateLastContact}
+        onCreateProject={handleCreateProjectFromLead}
+        hasProject={selectedLead ? leadIdsWithProject.has(selectedLead.id) : false}
       />
 
       {/* Edit Lead Modal */}
@@ -277,6 +314,18 @@ const Index = () => {
         open={editModalOpen}
         onOpenChange={setEditModalOpen}
         onSave={handleSaveEdit}
+      />
+
+      {/* Add Project Modal — controlled from pipeline actions */}
+      <AddProjectModal
+        onAdd={createProject}
+        getClosedLeads={getClosedLeadsWithoutProject}
+        initialLeadId={projectInitialLeadId}
+        open={projectModalOpen}
+        onOpenChange={(open) => {
+          setProjectModalOpen(open);
+          if (!open) setProjectInitialLeadId(undefined);
+        }}
       />
     </div>
   );
