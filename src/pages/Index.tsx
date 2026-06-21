@@ -321,7 +321,7 @@ const Index = () => {
         onSave={handleSaveEdit}
       />
 
-      {/* Add Project Modal — controlled from pipeline actions */}
+      {/* Add Project Modal — controlled from pipeline actions, no trigger in header */}
       <AddProjectModal
         onAdd={createProject}
         getClosedLeads={getClosedLeadsWithoutProject}
@@ -331,6 +331,7 @@ const Index = () => {
           setProjectModalOpen(open);
           if (!open) setProjectInitialLeadId(undefined);
         }}
+        trigger={null}
       />
     </div>
   );
