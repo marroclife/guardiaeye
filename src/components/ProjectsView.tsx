@@ -6,6 +6,7 @@ import { AddProjectModal } from '@/components/AddProjectModal';
 import { EditProjectModal } from '@/components/EditProjectModal';
 import { MetricCard } from '@/components/MetricCard';
 import { Project, ProjectStatus, ProjectWithLead, PROJECT_COLUMNS } from '@/types/project';
+import { Button } from '@/components/ui/button';
 import { Briefcase, Clock, AlertTriangle, CheckCircle2, Loader2, Plus } from 'lucide-react';
 
 const MOBILE_COLUMN_PAIRS: [string, string][] = [
