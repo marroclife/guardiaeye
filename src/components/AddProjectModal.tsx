@@ -43,7 +43,7 @@ interface AddProjectModalProps {
   initialLeadId?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  trigger?: React.ReactNode;
+  trigger: React.ReactNode;
 }
 
 export function AddProjectModal({
@@ -131,14 +131,6 @@ export function AddProjectModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      {!trigger && (
-        <DialogTrigger asChild>
-          <Button className="btn-marroc">
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Projeto
-          </Button>
-        </DialogTrigger>
-      )}
       <DialogContent className="glass-card border-marroc-dourado/15 bg-marroc-muscgo/95 backdrop-blur-xl sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-display font-bold text-marroc-dourado">

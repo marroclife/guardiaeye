@@ -6,7 +6,7 @@ import { AddProjectModal } from '@/components/AddProjectModal';
 import { EditProjectModal } from '@/components/EditProjectModal';
 import { MetricCard } from '@/components/MetricCard';
 import { Project, ProjectStatus, ProjectWithLead, PROJECT_COLUMNS } from '@/types/project';
-import { Briefcase, Clock, AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
+import { Briefcase, Clock, AlertTriangle, CheckCircle2, Loader2, Plus } from 'lucide-react';
 
 const MOBILE_COLUMN_PAIRS: [string, string][] = [
   ['briefing', 'design'],
@@ -111,7 +111,16 @@ export function ProjectsView() {
           Status: {isConnected ? 'Online' : 'Offline'}
         </div>
         <div className="ml-auto">
-          <AddProjectModal onAdd={createProject} getClosedLeads={getClosedLeadsWithoutProject} />
+          <AddProjectModal
+            onAdd={createProject}
+            getClosedLeads={getClosedLeadsWithoutProject}
+            trigger={
+              <Button className="btn-marroc">
+                <Plus className="w-4 h-4 mr-2" />
+                Novo Projeto
+              </Button>
+            }
+          />
         </div>
       </div>
 
