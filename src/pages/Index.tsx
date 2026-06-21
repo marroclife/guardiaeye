@@ -192,15 +192,18 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             {activePage === 'pipeline' && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleProcessStale}
-                className="border-marroc-dourado/25 text-marroc-dourado hover:bg-marroc-dourado/10 hover:text-marroc-dourado hidden md:flex"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Processar Inativos
-              </Button>
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleProcessStale}
+                  className="border-marroc-dourado/25 text-marroc-dourado hover:bg-marroc-dourado/10 hover:text-marroc-dourado hidden md:flex"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Processar Inativos
+                </Button>
+                <AddLeadModal onAdd={createLead} />
+              </>
             )}
             <ArchivedLeadsSheet
               archivedLeads={archivedLeads}
@@ -208,7 +211,6 @@ const Index = () => {
               onPermanentDelete={permanentlyDeleteLead}
             />
             <SystemStatus isConnected={isConnected} />
-            {activePage !== 'projects' && <AddLeadModal onAdd={createLead} />}
           </div>
         </header>
 

@@ -48,16 +48,16 @@ export function LeadCard({ lead, onClick, isDragging, accentColor, compact = fal
       )}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-1.5 md:mb-2">
+      <div className="flex items-start justify-between gap-2 mb-1.5 md:mb-2">
         <h4 className={cn(
-          "font-display font-medium text-marroc-dourado truncate flex-1 mr-2 leading-snug",
-          compact ? "text-xs" : "text-sm"
+          "font-display font-medium text-marroc-dourado flex-1 leading-snug min-w-0",
+          compact ? "text-xs truncate" : "text-sm truncate"
         )}>
           {lead.name}
         </h4>
         <span className={cn(
-          "px-2 py-0.5 rounded text-xs font-mono flex-shrink-0",
-          compact ? "text-[10px] px-1.5" : "",
+          "px-2 py-0.5 rounded text-xs font-mono flex-shrink-0 whitespace-nowrap",
+          compact && "text-[10px] px-1.5",
           priority.className
         )}>
           {priority.label}
@@ -67,10 +67,10 @@ export function LeadCard({ lead, onClick, isDragging, accentColor, compact = fal
       {/* Company */}
       {lead.company && (
         <div className={cn(
-          "flex items-center gap-2 text-marroc-salvia/70 mb-1",
+          "flex items-center gap-2 text-marroc-salvia/70 mb-1 min-w-0",
           compact ? "text-[10px]" : "text-xs"
         )}>
-          <Building2 className={cn("text-marroc-esmeralda", compact ? "w-3 h-3" : "w-3 h-3")} />
+          <Building2 className={cn("text-marroc-esmeralda flex-shrink-0", compact ? "w-3 h-3" : "w-3 h-3")} />
           <span className="truncate">{lead.company}</span>
         </div>
       )}
@@ -85,9 +85,9 @@ export function LeadCard({ lead, onClick, isDragging, accentColor, compact = fal
 
       {/* Value */}
       {lead.value && lead.value > 0 && (
-        <div className="flex items-center gap-2 mb-1">
-          <DollarSign className={cn("text-marroc-salvia", compact ? "w-3 h-3" : "w-3 h-3")} />
-          <span className={cn("font-mono text-marroc-salvia", compact ? "text-[10px]" : "text-xs")}>
+        <div className="flex items-center gap-2 mb-1 min-w-0">
+          <DollarSign className={cn("text-marroc-salvia flex-shrink-0", compact ? "w-3 h-3" : "w-3 h-3")} />
+          <span className={cn("font-mono text-marroc-salvia truncate", compact ? "text-[10px]" : "text-xs")}>
             {formatValue(lead.value)}
           </span>
         </div>
@@ -95,24 +95,28 @@ export function LeadCard({ lead, onClick, isDragging, accentColor, compact = fal
 
       {/* Footer - Last Contact & Stale Warning */}
       <div className={cn(
-        "flex items-center justify-between border-t border-marroc-dourado/15",
+        "flex items-center justify-between border-t border-marroc-dourado/15 gap-2",
         compact ? "mt-1.5 pt-1.5" : "mt-2 pt-2"
-      )}>
+      )}
+      >
         <div className={cn(
-          "flex items-center gap-1.5 text-marroc-salvia/70 font-light",
+          "flex items-center gap-1.5 text-marroc-salvia/70 font-light min-w-0",
           compact ? "text-[10px]" : "text-xs"
-        )}>
-          <Clock className={cn("", compact ? "w-3 h-3" : "w-3 h-3")} />
-          <span>{formatDate(lead.last_contact_at)}</span>
+        )}
+        >
+          <Clock className={cn("flex-shrink-0", compact ? "w-3 h-3" : "w-3 h-3")} />
+          <span className="truncate">{formatDate(lead.last_contact_at)}</span>
         </div>
         
         {stale && (
           <div className={cn(
-            "flex items-center gap-1 text-amber-300/90 font-light",
-            compact ? "text-[10px]" : "text-xs"
-          )}>
-            <AlertTriangle className={cn("", compact ? "w-3 h-3" : "w-3 h-3")} />
-            <span>{daysSince}d parado</span>
+            "flex items-center gap-1 font-light flex-shrink-0",
+            compact ? "text-[10px]" : "text-xs",
+            "text-amber-300/90"
+          )}
+          >
+            <AlertTriangle className={cn("flex-shrink-0", compact ? "w-3 h-3" : "w-3 h-3")} />
+            <span className="whitespace-nowrap">{daysSince}d parado</span>
           </div>
         )}
       </div>

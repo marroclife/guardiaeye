@@ -137,7 +137,7 @@ export function KanbanColumn({
         ref={containerRef}
         className={cn(
           'flex-1 rounded-xl border border-marroc-dourado/15 p-2 md:p-3 transition-colors duration-200 overflow-y-auto',
-          compact ? 'min-h-[180px] max-h-[40vh]' : 'min-h-[300px] md:min-h-[400px] max-h-[calc(100vh-280px)]'
+          compact ? 'min-h-[140px] max-h-[36vh]' : 'min-h-[300px] md:min-h-[400px] max-h-[calc(100vh-280px)]'
         )}
         onDragOver={(e) => handleDragOver(e, leads.length)}
         onDragLeave={handleDragLeave}
@@ -167,14 +167,14 @@ export function KanbanColumn({
         {leads.length === 0 && (
           <div 
             className={cn(
-              "flex items-center justify-center text-marroc-salvia/70 text-xs border border-dashed border-marroc-dourado/15 rounded-lg transition-all",
-              compact ? 'h-16' : 'h-24',
+              "flex items-center justify-center text-marroc-salvia/60 text-[10px] text-center border border-dashed border-marroc-dourado/15 rounded-lg transition-all px-2",
+              compact ? 'h-12' : 'h-24',
               dragOverIndex !== null && "bg-marroc-dourado/5 border-marroc-esmeralda/30"
             )}
             onDragOver={(e) => handleDragOver(e, 0)}
             onDrop={(e) => handleDrop(e, 0)}
           >
-            Arraste leads aqui
+            {compact ? 'Vazio' : 'Arraste leads aqui'}
           </div>
         )}
       </div>
