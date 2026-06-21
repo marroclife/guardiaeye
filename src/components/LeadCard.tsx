@@ -7,6 +7,7 @@ interface LeadCardProps {
   onClick: () => void;
   isDragging?: boolean;
   accentColor?: string;
+  compact?: boolean;
 }
 
 const priorityConfig: Record<LeadPriority, { label: string; className: string }> = {
@@ -15,7 +16,7 @@ const priorityConfig: Record<LeadPriority, { label: string; className: string }>
   high: { label: 'Quente', className: 'temp-tag-hot' },
 };
 
-export function LeadCard({ lead, onClick, isDragging, accentColor }: LeadCardProps) {
+export function LeadCard({ lead, onClick, isDragging, accentColor, compact = false }: LeadCardProps) {
   const priority = priorityConfig[lead.priority || 'medium'];
   const source = LEAD_SOURCES.find(s => s.id === lead.source);
   const stale = isLeadStale(lead);
@@ -39,32 +40,43 @@ export function LeadCard({ lead, onClick, isDragging, accentColor }: LeadCardPro
     <div
       onClick={onClick}
       className={cn(
-        'kanban-card p-4 mb-3 border-l-2',
+        'kanban-card border-l-2 cursor-pointer active:scale-[0.99] transition-transform',
+        compact ? 'p-2.5 mb-2' : 'p-4 mb-3',
         accentColor || 'border-l-white/20',
         isDragging && 'dragging',
         stale && 'border-orange-500/50 bg-orange-500/5'
       )}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-2">
-        <h4 className="font-display font-medium text-marroc-dourado truncate flex-1 mr-2 text-sm leading-snug">
+      <div className="flex items-start justify-between mb-1.5 md:mb-2">
+        <h4 className={cn(
+          "font-display font-medium text-marroc-dourado truncate flex-1 mr-2 leading-snug",
+          compact ? "text-xs" : "text-sm"
+        )}>
           {lead.name}
         </h4>
-        <span className={`px-2 py-0.5 rounded text-xs font-mono ${priority.className}`}>
+        <span className={cn(
+          "px-2 py-0.5 rounded text-xs font-mono flex-shrink-0",
+          compact ? "text-[10px] px-1.5" : "",
+          priority.className
+        )}>
           {priority.label}
         </span>
       </div>
 
       {/* Company */}
       {lead.company && (
-        <div className="flex items-center gap-2 text-xs text-marroc-salvia/70 mb-1.5">
-          <Building2 className="w-3 h-3 text-marroc-esmeralda" />
+        <div className={cn(
+          "flex items-center gap-2 text-marroc-salvia/70 mb-1",
+          compact ? "text-[10px]" : "text-xs"
+        )}>
+          <Building2 className={cn("text-marroc-esmeralda", compact ? "w-3 h-3" : "w-3 h-3")} />
           <span className="truncate">{lead.company}</span>
         </div>
       )}
 
       {/* Source Badge */}
-      {source && (
+      {source && !compact && (
         <div className="flex items-center gap-1.5 text-xs text-marroc-salvia/70 mb-1.5">
           <span>{source.icon}</span>
           <span>{source.label}</span>
@@ -73,24 +85,33 @@ export function LeadCard({ lead, onClick, isDragging, accentColor }: LeadCardPro
 
       {/* Value */}
       {lead.value && lead.value > 0 && (
-        <div className="flex items-center gap-2 mb-1.5">
-          <DollarSign className="w-3 h-3 text-marroc-salvia" />
-          <span className="font-mono text-xs text-marroc-salvia">
+        <div className="flex items-center gap-2 mb-1">
+          <DollarSign className={cn("text-marroc-salvia", compact ? "w-3 h-3" : "w-3 h-3")} />
+          <span className={cn("font-mono text-marroc-salvia", compact ? "text-[10px]" : "text-xs")}>
             {formatValue(lead.value)}
           </span>
         </div>
       )}
 
       {/* Footer - Last Contact & Stale Warning */}
-      <div className="flex items-center justify-between mt-2 pt-2 border-t border-marroc-dourado/15">
-        <div className="flex items-center gap-1.5 text-xs text-marroc-salvia/70 font-light">
-          <Clock className="w-3 h-3" />
+      <div className={cn(
+        "flex items-center justify-between border-t border-marroc-dourado/15",
+        compact ? "mt-1.5 pt-1.5" : "mt-2 pt-2"
+      )}>
+        <div className={cn(
+          "flex items-center gap-1.5 text-marroc-salvia/70 font-light",
+          compact ? "text-[10px]" : "text-xs"
+        )}>
+          <Clock className={cn("", compact ? "w-3 h-3" : "w-3 h-3")} />
           <span>{formatDate(lead.last_contact_at)}</span>
         </div>
         
         {stale && (
-          <div className="flex items-center gap-1 text-xs text-amber-300/90 font-light">
-            <AlertTriangle className="w-3 h-3" />
+          <div className={cn(
+            "flex items-center gap-1 text-amber-300/90 font-light",
+            compact ? "text-[10px]" : "text-xs"
+          )}>
+            <AlertTriangle className={cn("", compact ? "w-3 h-3" : "w-3 h-3")} />
             <span>{daysSince}d parado</span>
           </div>
         )}

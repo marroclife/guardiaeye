@@ -1,38 +1,40 @@
 import { useState, useRef } from 'react';
-import { Lead, LeadStatus, COLUMN_ACCENT_COLORS } from '@/types/lead';
-import { LeadCard } from './LeadCard';
+import { ProjectStatus, PROJECT_COLUMN_ACCENT_COLORS } from '@/types/project';
+import { ProjectCard } from './ProjectCard';
+import { ProjectWithLead } from '@/types/project';
 import { cn } from '@/lib/utils';
 
-interface KanbanColumnProps {
-  id: LeadStatus;
+interface ProjectKanbanColumnProps {
+  id: ProjectStatus;
   title: string;
   icon: string;
   color?: string;
-  leads: Lead[];
-  onLeadClick: (lead: Lead) => void;
-  onDrop: (leadId: string, newStatus: LeadStatus, newPosition?: number) => void;
-  onReorder: (reorderedLeads: { id: string; position: number }[]) => void;
+  projects: ProjectWithLead[];
+  onProjectClick: (project: ProjectWithLead) => void;
+  onDrop?: (projectId: string, newStatus: ProjectStatus, newPosition?: number) => void;
+  onReorder?: (reorderedProjects: { id: string; position: number }[]) => void;
   delay?: number;
   compact?: boolean;
 }
 
-export function KanbanColumn({
+export function ProjectKanbanColumn({
   id,
   title,
   icon,
   color,
-  leads,
-  onLeadClick,
+  projects,
+  onProjectClick,
   onDrop,
   onReorder,
   delay = 0,
   compact = false,
-}: KanbanColumnProps) {
+}: ProjectKanbanColumnProps) {
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const accentColor = COLUMN_ACCENT_COLORS[id];
+  const accentColor = PROJECT_COLUMN_ACCENT_COLORS[id];
 
   const handleDragOver = (e: React.DragEvent, index?: number) => {
+    if (!onDrop) return;
     e.preventDefault();
     e.stopPropagation();
     if (index !== undefined) {
@@ -42,70 +44,64 @@ export function KanbanColumn({
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
-    // Only clear if leaving the container entirely
     if (containerRef.current && !containerRef.current.contains(e.relatedTarget as Node)) {
       setDragOverIndex(null);
     }
   };
 
   const handleDrop = (e: React.DragEvent, dropIndex?: number) => {
+    if (!onDrop) return;
     e.preventDefault();
     e.stopPropagation();
     setDragOverIndex(null);
-    
-    const leadId = e.dataTransfer.getData('leadId');
-    const sourceStatus = e.dataTransfer.getData('sourceStatus');
-    
-    if (!leadId) return;
 
-    const targetIndex = dropIndex !== undefined ? dropIndex : leads.length;
-    
-    // If dropping from another column
+    const projectId = e.dataTransfer.getData('projectId');
+    const sourceStatus = e.dataTransfer.getData('sourceStatus');
+
+    if (!projectId) return;
+
+    const targetIndex = dropIndex !== undefined ? dropIndex : projects.length;
+
     if (sourceStatus !== id) {
-      onDrop(leadId, id, targetIndex);
-      // Reorder existing leads to make room
-      const newOrder = leads.map((lead, idx) => ({
-        id: lead.id,
-        position: idx >= targetIndex ? idx + 1 : idx,
-      }));
-      if (newOrder.length > 0) {
-        onReorder(newOrder);
+      onDrop(projectId, id, targetIndex);
+      if (onReorder) {
+        const newOrder = projects.map((project, idx) => ({
+          id: project.id,
+          position: idx >= targetIndex ? idx + 1 : idx,
+        }));
+        if (newOrder.length > 0) onReorder(newOrder);
       }
     } else {
-      // Reordering within same column
-      const draggedLeadIndex = leads.findIndex(l => l.id === leadId);
-      if (draggedLeadIndex === -1 || draggedLeadIndex === targetIndex) return;
+      const draggedProjectIndex = projects.findIndex((p) => p.id === projectId);
+      if (draggedProjectIndex === -1 || draggedProjectIndex === targetIndex) return;
 
-      const newLeads = [...leads];
-      const [draggedLead] = newLeads.splice(draggedLeadIndex, 1);
-      const adjustedIndex = targetIndex > draggedLeadIndex ? targetIndex - 1 : targetIndex;
-      newLeads.splice(adjustedIndex, 0, draggedLead);
+      const newProjects = [...projects];
+      const [draggedProject] = newProjects.splice(draggedProjectIndex, 1);
+      const adjustedIndex = targetIndex > draggedProjectIndex ? targetIndex - 1 : targetIndex;
+      newProjects.splice(adjustedIndex, 0, draggedProject);
 
-      const newOrder = newLeads.map((lead, idx) => ({
-        id: lead.id,
+      const newOrder = newProjects.map((project, idx) => ({
+        id: project.id,
         position: idx,
       }));
-      onReorder(newOrder);
+      onReorder?.(newOrder);
     }
   };
 
-  const handleDragStart = (e: React.DragEvent, leadId: string) => {
-    e.dataTransfer.setData('leadId', leadId);
+  const handleDragStart = (e: React.DragEvent, projectId: string) => {
+    if (!onDrop) return;
+    e.dataTransfer.setData('projectId', projectId);
     e.dataTransfer.setData('sourceStatus', id);
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  // Calculate column stats
-  const totalValue = leads.reduce((acc, l) => acc + (l.value || 0), 0);
-  const hasValue = totalValue > 0;
+  const overdueCount = projects.filter((p) => p.deadline && new Date(p.deadline) < new Date()).length;
 
   return (
     <div
       className={cn(
         'flex flex-col boot-fade-in',
-        compact 
-          ? 'w-full min-w-0' 
-          : 'min-w-[280px] w-[280px] md:min-w-[300px] md:w-[300px]'
+        compact ? 'w-full min-w-0' : 'min-w-[280px] w-[280px] md:min-w-[300px] md:w-[300px]'
       )}
       style={{ animationDelay: `${delay}ms` }}
     >
@@ -121,14 +117,14 @@ export function KanbanColumn({
           </h3>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="font-light text-xs px-2 py-0.5 bg-marroc-dourado/10 border border-marroc-dourado/20 rounded-full text-marroc-dourado">
-            {leads.length}
-          </span>
-          {hasValue && !compact && (
-            <span className="font-display text-xs font-semibold text-marroc-esmeralda hidden md:block">
-              R$ {totalValue.toLocaleString('pt-BR')}
+          {overdueCount > 0 && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/15 text-red-300 border border-red-500/30">
+              {overdueCount} atrasado{overdueCount > 1 ? 's' : ''}
             </span>
           )}
+          <span className="font-light text-xs px-2 py-0.5 bg-marroc-dourado/10 border border-marroc-dourado/20 rounded-full text-marroc-dourado">
+            {projects.length}
+          </span>
         </div>
       </div>
 
@@ -139,15 +135,15 @@ export function KanbanColumn({
           'flex-1 rounded-xl border border-marroc-dourado/15 p-2 md:p-3 transition-colors duration-200 overflow-y-auto',
           compact ? 'min-h-[180px] max-h-[40vh]' : 'min-h-[300px] md:min-h-[400px] max-h-[calc(100vh-280px)]'
         )}
-        onDragOver={(e) => handleDragOver(e, leads.length)}
+        onDragOver={(e) => handleDragOver(e, projects.length)}
         onDragLeave={handleDragLeave}
-        onDrop={(e) => handleDrop(e, leads.length)}
+        onDrop={(e) => handleDrop(e, projects.length)}
       >
-        {leads.map((lead, index) => (
+        {projects.map((project, index) => (
           <div
-            key={lead.id}
-            draggable
-            onDragStart={(e) => handleDragStart(e, lead.id)}
+            key={project.id}
+            draggable={!!onDrop}
+            onDragStart={(e) => handleDragStart(e, project.id)}
             onDragOver={(e) => handleDragOver(e, index)}
             onDrop={(e) => handleDrop(e, index)}
             className={cn(
@@ -155,17 +151,17 @@ export function KanbanColumn({
               dragOverIndex === index && 'pt-12'
             )}
           >
-            <LeadCard 
-              lead={lead} 
-              onClick={() => onLeadClick(lead)} 
+            <ProjectCard
+              project={project}
+              onClick={() => onProjectClick(project)}
               accentColor={accentColor}
               compact={compact}
             />
           </div>
         ))}
-        
-        {leads.length === 0 && (
-          <div 
+
+        {projects.length === 0 && (
+          <div
             className={cn(
               "flex items-center justify-center text-marroc-salvia/70 text-xs border border-dashed border-marroc-dourado/15 rounded-lg transition-all",
               compact ? 'h-16' : 'h-24',
@@ -174,7 +170,7 @@ export function KanbanColumn({
             onDragOver={(e) => handleDragOver(e, 0)}
             onDrop={(e) => handleDrop(e, 0)}
           >
-            Arraste leads aqui
+            Arraste projetos aqui
           </div>
         )}
       </div>

@@ -4,17 +4,60 @@ import { Lead, LeadStatus, LeadSource, STALE_LEAD_DAYS } from '@/types/lead';
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 
+function mapDbToLead(row: Record<string, unknown>): Lead {
+  return {
+    id: String(row.id || ''),
+    created_at: String(row.created_at || ''),
+    updated_at: String(row.updated_at || ''),
+    name: String(row.name || ''),
+    company: row.company ? String(row.company) : null,
+    role: row.role ? String(row.role) : null,
+    phone: row.phone ? String(row.phone) : null,
+    email: row.email ? String(row.email) : null,
+    website: row.website ? String(row.website) : null,
+    status: (row.status as LeadStatus) || 'triagem',
+    ai_summary: row.ai_summary ? String(row.ai_summary) : null,
+    value: typeof row.value === 'number' ? row.value : null,
+    priority: (row.priority || 'medium') as Lead['priority'],
+    archived: row.archived ?? false,
+    obs: row.obs ? String(row.obs) : null,
+    source: (row.source || 'manual') as LeadSource,
+    last_contact_at: String(row.last_contact_at || row.updated_at || row.created_at || ''),
+    position: typeof row.position === 'number' ? row.position : 0,
+  };
+}
+
 export function useLeads() {
   const { user } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
 
+  const fetchLeads = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .order('position', { ascending: true });
+
+      if (error) throw error;
+
+      const typedLeads = ((data || []) as Record<string, unknown>[]).map(mapDbToLead);
+      setLeads(typedLeads);
+    } catch (error) {
+      console.error('Error fetching leads:', error);
+      toast.error('Erro ao carregar leads');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // Fetch initial leads when user is available
   useEffect(() => {
     if (user) {
       fetchLeads();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // Setup realtime subscription
@@ -29,22 +72,27 @@ export function useLeads() {
           table: 'leads',
         },
         (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const newLead = mapDbToLead(payload.new);
+          const newRow = payload.new as Record<string, unknown> | undefined;
+          const oldRow = payload.old as Record<string, unknown> | undefined;
+
+          if (payload.eventType === 'INSERT' && newRow) {
+            const newLead = mapDbToLead(newRow);
             setLeads((prev) => [newLead, ...prev]);
             toast.success('Novo lead detectado!', {
               description: `${newLead.name} entrou no sistema`,
               className: 'bg-black/90 border-neon-cyan/50 text-white',
             });
-          } else if (payload.eventType === 'UPDATE') {
+          } else if (payload.eventType === 'UPDATE' && newRow) {
+            const updatedLead = mapDbToLead(newRow);
             setLeads((prev) =>
               prev.map((lead) =>
-                lead.id === payload.new.id ? mapDbToLead(payload.new) : lead
+                lead.id === updatedLead.id ? updatedLead : lead
               )
             );
-          } else if (payload.eventType === 'DELETE') {
+          } else if (payload.eventType === 'DELETE' && oldRow) {
+            const id = String(oldRow.id || '');
             setLeads((prev) =>
-              prev.filter((lead) => lead.id !== payload.old.id)
+              prev.filter((lead) => lead.id !== id)
             );
           }
         }
@@ -58,45 +106,13 @@ export function useLeads() {
     };
   }, []);
 
-  // Map database row to Lead type
-  function mapDbToLead(row: any): Lead {
-    return {
-      ...row,
-      status: row.status as LeadStatus,
-      priority: (row.priority || 'medium') as Lead['priority'],
-      source: (row.source || 'manual') as LeadSource,
-      archived: row.archived ?? false,
-      last_contact_at: row.last_contact_at || row.updated_at || row.created_at,
-      position: row.position ?? 0,
-    };
-  }
-
-  async function fetchLeads() {
-    try {
-      const { data, error } = await supabase
-        .from('leads')
-        .select('*')
-        .order('position', { ascending: true });
-
-      if (error) throw error;
-      
-      const typedLeads = (data || []).map(mapDbToLead);
-      setLeads(typedLeads);
-    } catch (error) {
-      console.error('Error fetching leads:', error);
-      toast.error('Erro ao carregar leads');
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function updateLeadStatus(leadId: string, newStatus: LeadStatus, newPosition?: number) {
     try {
       const updateData: { status: LeadStatus; position?: number } = { status: newStatus };
       if (newPosition !== undefined) {
         updateData.position = newPosition;
       }
-      
+
       const { error } = await supabase
         .from('leads')
         .update(updateData)
@@ -112,10 +128,10 @@ export function useLeads() {
   async function reorderLeads(reorderedLeads: { id: string; position: number }[]) {
     try {
       // Optimistic update
-      setLeads(prev => {
+      setLeads((prev) => {
         const updated = [...prev];
         reorderedLeads.forEach(({ id, position }) => {
-          const index = updated.findIndex(l => l.id === id);
+          const index = updated.findIndex((l) => l.id === id);
           if (index !== -1) {
             updated[index] = { ...updated[index], position };
           }
@@ -264,7 +280,7 @@ export function useLeads() {
     const staleDate = new Date();
     staleDate.setDate(staleDate.getDate() - STALE_LEAD_DAYS);
     
-    const staleLeads = leads.filter(lead => {
+    const staleLeads = leads.filter((lead) => {
       const lastContact = new Date(lead.last_contact_at);
       const isStale = lastContact < staleDate;
       const eligibleStatuses: LeadStatus[] = ['triagem', 'em_contato'];
@@ -277,7 +293,7 @@ export function useLeads() {
       const { error } = await supabase
         .from('leads')
         .update({ status: 'sem_resposta' as LeadStatus })
-        .in('id', staleLeads.map(l => l.id));
+        .in('id', staleLeads.map((l) => l.id));
 
       if (error) throw error;
       

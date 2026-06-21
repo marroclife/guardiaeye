@@ -11,10 +11,17 @@ import { DashboardView } from '@/components/DashboardView';
 import { AnalyticsView } from '@/components/AnalyticsView';
 import { SettingsView } from '@/components/SettingsView';
 import { HelpView } from '@/components/HelpView';
+import { ProjectsView } from '@/components/ProjectsView';
 import { useLeads } from '@/hooks/useLeads';
 import { Lead, KANBAN_COLUMNS } from '@/types/lead';
 import { Users, TrendingUp, Bell, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+const MOBILE_COLUMN_PAIRS: [string, string][] = [
+  ['triagem', 'em_contato'],
+  ['sem_resposta', 'em_espera'],
+  ['proposta', 'fechado'],
+];
 
 const Index = () => {
   const [activePage, setActivePage] = useState('pipeline');
@@ -102,17 +109,38 @@ const Index = () => {
     await processStaleLeads();
   };
 
+  const renderKanbanColumn = (columnId: string, index: number, isMobilePair = false) => {
+    const column = KANBAN_COLUMNS.find((c) => c.id === columnId);
+    if (!column) return null;
+    return (
+      <KanbanColumn
+        key={column.id}
+        id={column.id}
+        title={column.title}
+        icon={column.icon}
+        color={column.color}
+        leads={leadsByStatus[column.id] || []}
+        onLeadClick={handleLeadClick}
+        onDrop={handleDrop}
+        onReorder={handleReorder}
+        delay={400 + index * 100}
+        compact={isMobilePair}
+      />
+    );
+  };
+
   return (
-    <div className="flex min-h-screen bg-marroc-muscgo grid-pattern">
+    <div className="flex min-h-screen bg-marroc-muscgo grid-pattern pt-14 md:pt-0">
       <Sidebar activePage={activePage} onPageChange={setActivePage} />
 
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="h-16 border-b border-marroc-dourado/15 px-4 md:px-6 flex items-center justify-between glass-card boot-fade-in">
+        <header className="h-14 md:h-16 border-b border-marroc-dourado/15 px-4 md:px-6 flex items-center justify-between glass-card boot-fade-in">
           <div>
-            <h2 className="text-base md:text-lg font-display font-semibold text-marroc-dourado">
-              {activePage === 'pipeline' && 'Pipeline de Vendas'}
+            <h2 className="text-sm md:text-lg font-display font-semibold text-marroc-dourado">
               {activePage === 'dashboard' && 'Visão Geral'}
+              {activePage === 'pipeline' && 'Pipeline de Vendas'}
+              {activePage === 'projects' && 'Projetos'}
               {activePage === 'analytics' && 'Analytics'}
               {activePage === 'settings' && 'Configurações'}
               {activePage === 'help' && 'Central de Ajuda'}
@@ -144,12 +172,12 @@ const Index = () => {
               onPermanentDelete={permanentlyDeleteLead}
             />
             <SystemStatus isConnected={isConnected} />
-            <AddLeadModal onAdd={createLead} />
+            {activePage !== 'projects' && <AddLeadModal onAdd={createLead} />}
           </div>
         </header>
 
         {/* Content */}
-        <div className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="flex-1 overflow-auto p-3 md:p-6">
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <Loader2 className="w-8 h-8 animate-spin text-marroc-esmeralda" />
@@ -161,7 +189,7 @@ const Index = () => {
               {activePage === 'pipeline' && (
                 <>
                   {/* Metrics Dashboard */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
                     <MetricCard
                       title="Total no Pipeline"
                       value={metrics.totalLeads}
@@ -188,8 +216,8 @@ const Index = () => {
                     />
                   </div>
 
-                  {/* Kanban Board */}
-                  <div className="flex gap-3 md:gap-4 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
+                  {/* Desktop Kanban Board */}
+                  <div className="hidden md:flex gap-3 md:gap-4 overflow-x-auto pb-4 -mx-3 px-3 md:mx-0 md:px-0">
                     {KANBAN_COLUMNS.map((column, index) => (
                       <KanbanColumn
                         key={column.id}
@@ -205,8 +233,21 @@ const Index = () => {
                       />
                     ))}
                   </div>
+
+                  {/* Mobile Kanban Grid — 2 columns per row */}
+                  <div className="md:hidden space-y-4">
+                    {MOBILE_COLUMN_PAIRS.map((pair, pairIndex) => (
+                      <div key={pairIndex} className="grid grid-cols-2 gap-3">
+                        {pair.map((colId, colIndex) =>
+                          renderKanbanColumn(colId, pairIndex * 2 + colIndex, true)
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </>
               )}
+
+              {activePage === 'projects' && <ProjectsView />}
 
               {activePage === 'analytics' && <AnalyticsView leads={activeLeads} />}
               
