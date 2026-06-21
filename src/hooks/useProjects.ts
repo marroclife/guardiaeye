@@ -245,6 +245,32 @@ export function useProjects() {
     }
   }, [user]);
 
+  const getActiveProjects = useCallback(async () => {
+    if (!user) return [];
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, lead_id, lead:leads(id, name, company, phone), contract_number, status')
+        .neq('status', 'concluido')
+        .neq('status', 'pausado')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return (data || []).map((row) => ({
+        id: row.id,
+        lead_id: row.lead_id,
+        lead: row.lead as { id: string; name: string; company: string | null; phone: string | null } | null,
+        contract_number: row.contract_number,
+        status: row.status,
+      }));
+    } catch (error) {
+      console.error('Error fetching active projects:', error);
+      return [];
+    }
+  }, [user]);
+
   return {
     projects,
     loading,
@@ -256,5 +282,6 @@ export function useProjects() {
     reorderProjects,
     refetch: fetchProjects,
     getClosedLeadsWithoutProject,
+    getActiveProjects,
   };
 }

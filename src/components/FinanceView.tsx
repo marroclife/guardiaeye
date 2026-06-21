@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 
 export function FinanceView() {
   const { contracts, loading, summary, createContract, updatePaymentStatus, deleteContract } = useFinance();
-  const { getClosedLeadsWithoutProject } = useProjects();
+  const { getActiveProjects } = useProjects();
 
   const [selectedContract, setSelectedContract] = useState<ContractWithRelations | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -40,7 +40,7 @@ export function FinanceView() {
     <div className="space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="font-display font-semibold text-marroc-dourado text-lg hidden md:block">Financeiro</h3>
-        <AddContractModal onAdd={createContract} getClosedLeads={getClosedLeadsWithoutProject} />
+        <AddContractModal onAdd={createContract} getActiveProjects={getActiveProjects} />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">

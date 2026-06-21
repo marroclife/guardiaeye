@@ -20,11 +20,17 @@ import {
 import { Plus, Loader2, Trash2 } from 'lucide-react';
 import { ContractStatus } from '@/types/finance';
 
-interface ClosedLead {
+export interface ActiveProject {
   id: string;
-  name: string;
-  company: string | null;
-  phone: string | null;
+  lead_id: string;
+  lead: {
+    id: string;
+    name: string;
+    company: string | null;
+    phone: string | null;
+  } | null;
+  contract_number: string | null;
+  status: string;
 }
 
 interface PaymentInput {
@@ -38,6 +44,7 @@ interface AddContractModalProps {
   onAdd: (
     contract: {
       lead_id: string;
+      project_id: string;
       contract_number: string | null;
       status: ContractStatus;
       total_value: number;
@@ -47,17 +54,17 @@ interface AddContractModalProps {
     },
     payments: { amount: number; due_date: string | null; description: string | null; milestone: string | null }[]
   ) => void;
-  getClosedLeads: () => Promise<ClosedLead[]>;
+  getActiveProjects: () => Promise<ActiveProject[]>;
 }
 
-export function AddContractModal({ onAdd, getClosedLeads }: AddContractModalProps) {
+export function AddContractModal({ onAdd, getActiveProjects }: AddContractModalProps) {
   const [open, setOpen] = useState(false);
-  const [closedLeads, setClosedLeads] = useState<ClosedLead[]>([]);
-  const [loadingLeads, setLoadingLeads] = useState(false);
+  const [activeProjects, setActiveProjects] = useState<ActiveProject[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
-    lead_id: '',
+    project_id: '',
     contract_number: '',
     status: 'ativo' as ContractStatus,
     total_value: '',
@@ -71,21 +78,24 @@ export function AddContractModal({ onAdd, getClosedLeads }: AddContractModalProp
 
   useEffect(() => {
     if (open) {
-      setLoadingLeads(true);
-      getClosedLeads()
-        .then((leads) => {
-          setClosedLeads(leads);
-          if (leads.length === 1) {
-            setFormData((prev) => ({ ...prev, lead_id: leads[0].id }));
+      setLoadingProjects(true);
+      getActiveProjects()
+        .then((projects) => {
+          setActiveProjects(projects);
+          if (projects.length === 1) {
+            setFormData((prev) => ({ ...prev, project_id: projects[0].id }));
           }
         })
-        .finally(() => setLoadingLeads(false));
+        .finally(() => setLoadingProjects(false));
     }
-  }, [open, getClosedLeads]);
+  }, [open, getActiveProjects]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.lead_id || !formData.total_value) return;
+    if (!formData.project_id || !formData.total_value) return;
+
+    const selectedProject = activeProjects.find((p) => p.id === formData.project_id);
+    if (!selectedProject) return;
 
     const totalValue = parseFloat(formData.total_value);
     if (isNaN(totalValue) || totalValue <= 0) return;
@@ -94,7 +104,8 @@ export function AddContractModal({ onAdd, getClosedLeads }: AddContractModalProp
     try {
       await onAdd(
         {
-          lead_id: formData.lead_id,
+          lead_id: selectedProject.lead_id,
+          project_id: selectedProject.id,
           contract_number: formData.contract_number || null,
           status: formData.status,
           total_value: totalValue,
@@ -111,7 +122,7 @@ export function AddContractModal({ onAdd, getClosedLeads }: AddContractModalProp
       );
 
       setFormData({
-        lead_id: '',
+        project_id: '',
         contract_number: '',
         status: 'ativo',
         total_value: '',
@@ -142,6 +153,8 @@ export function AddContractModal({ onAdd, getClosedLeads }: AddContractModalProp
     );
   };
 
+  const selectedProject = activeProjects.find((p) => p.id === formData.project_id);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -159,34 +172,41 @@ export function AddContractModal({ onAdd, getClosedLeads }: AddContractModalProp
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="lead_id">Lead *</Label>
-            {loadingLeads ? (
+            <Label htmlFor="project_id">Projeto *</Label>
+            {loadingProjects ? (
               <div className="flex items-center gap-2 text-sm text-marroc-salvia/70 h-10">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Carregando leads...
+                Carregando projetos...
               </div>
-            ) : closedLeads.length === 0 ? (
+            ) : activeProjects.length === 0 ? (
               <div className="text-sm text-amber-300/90 bg-amber-500/5 border border-amber-500/20 rounded-lg p-3">
-                Nenhum lead fechado disponível.
+                Nenhum projeto ativo disponível. Crie um projeto primeiro na aba Projetos.
               </div>
             ) : (
               <Select
-                value={formData.lead_id}
-                onValueChange={(value) => setFormData({ ...formData, lead_id: value })}
+                value={formData.project_id}
+                onValueChange={(value) => setFormData({ ...formData, project_id: value })}
               >
                 <SelectTrigger className="bg-marroc-dourado/5 border-marroc-dourado/15">
-                  <SelectValue placeholder="Selecione um lead" />
+                  <SelectValue placeholder="Selecione um projeto em andamento" />
                 </SelectTrigger>
                 <SelectContent className="bg-marroc-muscgo/95 border-marroc-dourado/15">
-                  {closedLeads.map((lead) => (
-                    <SelectItem key={lead.id} value={lead.id}>
-                      {lead.company || lead.name}
+                  {activeProjects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.lead?.company || project.lead?.name || 'Projeto'}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             )}
           </div>
+
+          {selectedProject && (
+            <div className="text-xs text-marroc-salvia/70 bg-marroc-dourado/5 rounded-lg p-2">
+              Lead: {selectedProject.lead?.name || '—'}
+              {selectedProject.lead?.phone && ` · ${selectedProject.lead.phone}`}
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -331,7 +351,7 @@ export function AddContractModal({ onAdd, getClosedLeads }: AddContractModalProp
             </Button>
             <Button
               type="submit"
-              disabled={saving || !formData.lead_id || !formData.total_value || closedLeads.length === 0}
+              disabled={saving || !formData.project_id || !formData.total_value || activeProjects.length === 0}
               className="flex-1 btn-marroc"
             >
               {saving ? (
