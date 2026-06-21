@@ -10,6 +10,7 @@ import {
   LogOut,
   Eye,
   Menu,
+  DollarSign,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -24,6 +25,7 @@ const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'pipeline', label: 'Pipeline', icon: Users },
   { id: 'projects', label: 'Projetos', icon: Shield },
+  { id: 'finance', label: 'Financeiro', icon: DollarSign },
   { id: 'analytics', label: 'Analytics', icon: Activity },
   { id: 'settings', label: 'Configurações', icon: Settings },
   { id: 'help', label: 'Ajuda', icon: HelpCircle },

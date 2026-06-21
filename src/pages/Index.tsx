@@ -12,6 +12,7 @@ import { AnalyticsView } from '@/components/AnalyticsView';
 import { SettingsView } from '@/components/SettingsView';
 import { HelpView } from '@/components/HelpView';
 import { ProjectsView } from '@/components/ProjectsView';
+import { FinanceView } from '@/components/FinanceView';
 import { AddProjectModal } from '@/components/AddProjectModal';
 import { useLeads } from '@/hooks/useLeads';
 import { useProjects } from '@/hooks/useProjects';
@@ -178,7 +179,7 @@ const Index = () => {
               {activePage === 'projects' && 'Projetos'}
               {activePage === 'analytics' && 'Analytics'}
               {activePage === 'settings' && 'Configurações'}
-              {activePage === 'help' && 'Central de Ajuda'}
+              {activePage === 'finance' && 'Financeiro'}
             </h2>
             <p className="text-xs text-marroc-salvia/70 font-mono hidden md:block">
               {new Date().toLocaleDateString('pt-BR', { 
@@ -283,6 +284,8 @@ const Index = () => {
               )}
 
               {activePage === 'projects' && <ProjectsView />}
+
+              {activePage === 'finance' && <FinanceView />}
 
               {activePage === 'analytics' && <AnalyticsView leads={activeLeads} />}
               

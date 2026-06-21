@@ -1,4 +1,7 @@
-project_id = "vdasgfblafoagatyflcq"
+project_id = "jifjcajdzpwqttgkswyp"
 
 [functions.analyze-lead]
+verify_jwt = false
+
+[functions.create-contract]
 verify_jwt = false
