@@ -13,11 +13,14 @@ import { SettingsView } from '@/components/SettingsView';
 import { HelpView } from '@/components/HelpView';
 import { ProjectsView } from '@/components/ProjectsView';
 import { FinanceView } from '@/components/FinanceView';
+import { CalendarView } from '@/components/CalendarView';
 import { AddProjectModal } from '@/components/AddProjectModal';
+import { AddLeadEventModal } from '@/components/AddLeadEventModal';
 import { useLeads } from '@/hooks/useLeads';
 import { useProjects } from '@/hooks/useProjects';
+import { useLeadEvents } from '@/hooks/useLeadEvents';
 import { Lead, KANBAN_COLUMNS } from '@/types/lead';
-import { Users, TrendingUp, Bell, Loader2, RefreshCw } from 'lucide-react';
+import { Users, TrendingUp, Bell, Loader2, RefreshCw, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const MOBILE_COLUMN_PAIRS: [string, string][] = [
@@ -35,6 +38,10 @@ const Index = () => {
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [projectInitialLeadId, setProjectInitialLeadId] = useState<string | undefined>(undefined);
 
+  const [eventModalOpen, setEventModalOpen] = useState(false);
+  const [eventInitialLeadId, setEventInitialLeadId] = useState<string | undefined>(undefined);
+  const [eventInitialDate, setEventInitialDate] = useState<Date | undefined>(undefined);
+
   const {
     leads,
     loading: leadsLoading,
@@ -50,6 +57,14 @@ const Index = () => {
     processStaleLeads,
     reorderLeads,
   } = useLeads();
+
+  const {
+    events,
+    createEvent,
+    updateEvent,
+    deleteEvent,
+    toggleEventCompleted,
+  } = useLeadEvents();
 
   const {
     projects,
@@ -176,6 +191,7 @@ const Index = () => {
             <h2 className="text-sm md:text-lg font-display font-semibold text-marroc-dourado">
               {activePage === 'dashboard' && 'Visão Geral'}
               {activePage === 'pipeline' && 'Pipeline de Vendas'}
+              {activePage === 'calendar' && 'Calendário de Leads'}
               {activePage === 'projects' && 'Projetos'}
               {activePage === 'analytics' && 'Analytics'}
               {activePage === 'settings' && 'Configurações'}
@@ -191,18 +207,33 @@ const Index = () => {
             </p>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
-            {activePage === 'pipeline' && (
+            {(activePage === 'pipeline' || activePage === 'calendar') && (
               <>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleProcessStale}
-                  className="border-marroc-dourado/25 text-marroc-dourado hover:bg-marroc-dourado/10 hover:text-marroc-dourado hidden md:flex"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Processar Inativos
-                </Button>
-                <AddLeadModal onAdd={createLead} />
+                {activePage === 'pipeline' && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleProcessStale}
+                    className="border-marroc-dourado/25 text-marroc-dourado hover:bg-marroc-dourado/10 hover:text-marroc-dourado hidden md:flex"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Processar Inativos
+                  </Button>
+                )}
+                {activePage === 'calendar' && (
+                  <Button
+                    size="sm"
+                    className="btn-marroc"
+                    onClick={() => {
+                      setEventInitialDate(new Date());
+                      setEventInitialLeadId(undefined);
+                      setEventModalOpen(true);
+                    }}
+                  >
+                    + Agendar
+                  </Button>
+                )}
+                {activePage === 'pipeline' && <AddLeadModal onAdd={createLead} />}
               </>
             )}
             <ArchivedLeadsSheet
@@ -285,6 +316,24 @@ const Index = () => {
                 </>
               )}
 
+              {activePage === 'calendar' && (
+                <CalendarView
+                  leads={activeLeads}
+                  events={events}
+                  onAddEvent={(date, leadId) => {
+                    setEventInitialDate(date);
+                    setEventInitialLeadId(leadId);
+                    setEventModalOpen(true);
+                  }}
+                  onToggleComplete={toggleEventCompleted}
+                  onDeleteEvent={deleteEvent}
+                  onLeadClick={(lead) => {
+                    setSelectedLead(lead);
+                    setSheetOpen(true);
+                  }}
+                />
+              )}
+
               {activePage === 'projects' && <ProjectsView />}
 
               {activePage === 'finance' && <FinanceView />}
@@ -310,6 +359,14 @@ const Index = () => {
         onAnalyze={analyzeLeadWithAI}
         onUpdateLastContact={updateLastContact}
         onCreateProject={handleCreateProjectFromLead}
+        onAddEvent={(lead) => {
+          setEventInitialLeadId(lead.id);
+          setEventInitialDate(new Date());
+          setEventModalOpen(true);
+        }}
+        onToggleEventComplete={toggleEventCompleted}
+        onDeleteEvent={deleteEvent}
+        leadEvents={events}
         hasProject={selectedLead ? leadIdsWithProject.has(selectedLead.id) : false}
       />
 
@@ -332,6 +389,22 @@ const Index = () => {
           if (!open) setProjectInitialLeadId(undefined);
         }}
         trigger={null}
+      />
+
+      {/* Add Lead Event Modal */}
+      <AddLeadEventModal
+        leads={activeLeads}
+        initialLeadId={eventInitialLeadId}
+        initialDate={eventInitialDate}
+        open={eventModalOpen}
+        onOpenChange={(open) => {
+          setEventModalOpen(open);
+          if (!open) {
+            setEventInitialLeadId(undefined);
+            setEventInitialDate(undefined);
+          }
+        }}
+        onAdd={createEvent}
       />
     </div>
   );

@@ -80,6 +80,51 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_events: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          lead_id: string
+          notes: string | null
+          scheduled_at: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          lead_id: string
+          notes?: string | null
+          scheduled_at: string
+          title: string
+          type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          lead_id?: string
+          notes?: string | null
+          scheduled_at?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

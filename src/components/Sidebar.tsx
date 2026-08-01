@@ -11,6 +11,7 @@ import {
   Eye,
   Menu,
   DollarSign,
+  CalendarDays,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -24,6 +25,7 @@ interface SidebarProps {
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'pipeline', label: 'Pipeline', icon: Users },
+  { id: 'calendar', label: 'Calendário', icon: CalendarDays },
   { id: 'projects', label: 'Projetos', icon: Shield },
   { id: 'finance', label: 'Financeiro', icon: DollarSign },
   { id: 'analytics', label: 'Analytics', icon: Activity },

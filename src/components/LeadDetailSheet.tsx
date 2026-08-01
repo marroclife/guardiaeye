@@ -1,4 +1,5 @@
 import { Lead, LeadPriority, LEAD_SOURCES, getDaysSinceContact } from '@/types/lead';
+import { LeadEvent, LEAD_EVENT_TYPES, formatEventTime, isEventToday, isEventPast } from '@/types/leadEvent';
 import {
   Sheet,
   SheetContent,
@@ -7,6 +8,7 @@ import {
 } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   User,
   Building2,
@@ -16,7 +18,6 @@ import {
   Archive,
   Pencil,
   ExternalLink,
-  Terminal,
   Briefcase,
   Loader2,
   Sparkles,
@@ -25,6 +26,8 @@ import {
   Tag,
   RefreshCw,
   FolderPlus,
+  Calendar,
+  Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -38,6 +41,10 @@ interface LeadDetailSheetProps {
   onAnalyze: (lead: Lead) => Promise<string | null>;
   onUpdateLastContact?: (leadId: string) => void;
   onCreateProject?: (lead: Lead) => void;
+  onAddEvent?: (lead: Lead) => void;
+  onToggleEventComplete?: (eventId: string, completed: boolean) => void;
+  onDeleteEvent?: (eventId: string) => void;
+  leadEvents?: LeadEvent[];
   hasProject?: boolean;
 }
 
@@ -56,11 +63,19 @@ export function LeadDetailSheet({
   onAnalyze,
   onUpdateLastContact,
   onCreateProject,
+  onAddEvent,
+  onToggleEventComplete,
+  onDeleteEvent,
+  leadEvents = [],
   hasProject,
 }: LeadDetailSheetProps) {
   const [activeTab, setActiveTab] = useState('dados');
   const [analyzing, setAnalyzing] = useState(false);
   const [currentAnalysis, setCurrentAnalysis] = useState<string | null>(null);
+
+  const leadEventsList = leadEvents
+    .filter((e) => e.lead_id === lead?.id)
+    .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime());
 
   if (!lead) return null;
 
@@ -72,16 +87,6 @@ export function LeadDetailSheet({
     if (!phone) return null;
     const cleaned = phone.replace(/\D/g, '');
     return `https://wa.me/${cleaned}`;
-  };
-
-  const formatDate = (date: string) => {
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(date));
   };
 
   const formatShortDate = (date: string) => {
@@ -149,12 +154,15 @@ export function LeadDetailSheet({
         </SheetHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-          <TabsList className="grid w-full grid-cols-3 bg-marroc-dourado/5">
+          <TabsList className="grid w-full grid-cols-4 bg-marroc-dourado/5">
             <TabsTrigger value="dados" className="data-[state=active]:bg-marroc-esmeralda/20 data-[state=active]:text-marroc-esmeralda">
               Dados
             </TabsTrigger>
             <TabsTrigger value="analise" className="data-[state=active]:bg-marroc-esmeralda/20 data-[state=active]:text-marroc-esmeralda">
               Análise IA
+            </TabsTrigger>
+            <TabsTrigger value="eventos" className="data-[state=active]:bg-marroc-esmeralda/20 data-[state=active]:text-marroc-esmeralda">
+              Eventos
             </TabsTrigger>
             <TabsTrigger value="acoes" className="data-[state=active]:bg-marroc-esmeralda/20 data-[state=active]:text-marroc-esmeralda">
               Ações
@@ -252,6 +260,101 @@ export function LeadDetailSheet({
             </div>
           </TabsContent>
 
+          <TabsContent value="eventos" className="mt-6 space-y-3">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 text-marroc-dourado">
+                <Calendar className="w-4 h-4" />
+                <span className="font-display text-sm tracking-wide">Agenda do Lead</span>
+              </div>
+              {onAddEvent && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-marroc-dourado/15 text-marroc-esmeralda hover:bg-marroc-esmeralda/10"
+                  onClick={() => onAddEvent(lead)}
+                >
+                  + Novo
+                </Button>
+              )}
+            </div>
+
+            {leadEventsList.length === 0 ? (
+              <div className="text-center py-8 text-marroc-salvia/50">
+                <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Nenhum evento agendado</p>
+                {onAddEvent && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-3 border-marroc-dourado/15"
+                    onClick={() => onAddEvent(lead)}
+                  >
+                    Agendar primeiro evento
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+                {leadEventsList.map((event) => {
+                  const type = LEAD_EVENT_TYPES.find((t) => t.id === event.type) || LEAD_EVENT_TYPES[4];
+                  const isPast = isEventPast(event.scheduled_at, event.completed);
+                  const isToday = isEventToday(event.scheduled_at);
+
+                  return (
+                    <div
+                      key={event.id}
+                      className={`p-3 rounded-lg border border-marroc-dourado/15 bg-marroc-dourado/5 ${
+                        event.completed ? 'opacity-50' : ''
+                      } ${isPast ? 'border-l-2 border-l-red-400/60' : ''} ${isToday ? 'border-l-2 border-l-marroc-esmeralda' : ''}`}
+                    >
+                      <div className="flex items-start gap-3">
+                        {onToggleEventComplete && (
+                          <Checkbox
+                            checked={event.completed}
+                            onCheckedChange={(checked) => onToggleEventComplete(event.id, checked as boolean)}
+                            className="mt-0.5 border-marroc-esmeralda/50 data-[state=checked]:bg-marroc-esmeralda"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className={`text-sm font-medium truncate ${event.completed ? 'line-through' : 'text-marroc-texto'}`}>
+                              {event.title}
+                            </h4>
+                            <span className={`px-2 py-0.5 rounded text-[10px] border ${type.color}`}>
+                              {type.icon} {type.label}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-marroc-salvia/70">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {formatEventTime(event.scheduled_at)}
+                            </span>
+                            {event.duration_minutes && <span>{event.duration_minutes}min</span>}
+                            {isToday && <span className="text-marroc-esmeralda">Hoje</span>}
+                            {isPast && !event.completed && <span className="text-red-300">Atrasado</span>}
+                          </div>
+                          {event.notes && (
+                            <p className="text-xs text-marroc-salvia/60 mt-2 line-clamp-2">{event.notes}</p>
+                          )}
+                        </div>
+                        {onDeleteEvent && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-marroc-salvia/50 hover:text-red-300 hover:bg-red-500/10 flex-shrink-0"
+                            onClick={() => onDeleteEvent(event.id)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
+
           <TabsContent value="acoes" className="mt-6 space-y-3">
             {lead.status === 'fechado' && !hasProject && onCreateProject && (
               <Button
@@ -264,6 +367,16 @@ export function LeadDetailSheet({
               >
                 <FolderPlus className="w-4 h-4 text-marroc-esmeralda" />
                 Criar Projeto
+              </Button>
+            )}
+            {onAddEvent && (
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-3 h-12 border-marroc-dourado/15 hover:bg-marroc-esmeralda/10 hover:border-marroc-esmeralda/50"
+                onClick={() => onAddEvent(lead)}
+              >
+                <Calendar className="w-4 h-4 text-marroc-esmeralda" />
+                Agendar Evento
               </Button>
             )}
             {onUpdateLastContact && (
