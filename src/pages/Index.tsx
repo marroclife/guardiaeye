@@ -16,11 +16,17 @@ import { FinanceView } from '@/components/FinanceView';
 import { CalendarView } from '@/components/CalendarView';
 import { AddProjectModal } from '@/components/AddProjectModal';
 import { AddLeadEventModal } from '@/components/AddLeadEventModal';
+import { AIChat } from '@/components/AIChat';
+import { AISettingsPanel } from '@/components/AISettings';
 import { useLeads } from '@/hooks/useLeads';
 import { useProjects } from '@/hooks/useProjects';
 import { useLeadEvents } from '@/hooks/useLeadEvents';
+import { useAuth } from '@/hooks/useAuth';
+import { useAISettings } from '@/hooks/useAISettings';
+import { useAgent } from '@/ai/useAgent';
+import { createN8NClient } from '@/integrations/n8n/client';
 import { Lead, KANBAN_COLUMNS } from '@/types/lead';
-import { Users, TrendingUp, Bell, Loader2, RefreshCw, CalendarDays } from 'lucide-react';
+import { Users, TrendingUp, Bell, Loader2, RefreshCw, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const MOBILE_COLUMN_PAIRS: [string, string][] = [
@@ -41,6 +47,15 @@ const Index = () => {
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const [eventInitialLeadId, setEventInitialLeadId] = useState<string | undefined>(undefined);
   const [eventInitialDate, setEventInitialDate] = useState<Date | undefined>(undefined);
+
+  const [aiChatOpen, setAiChatOpen] = useState(false);
+  const { user } = useAuth();
+  const { settings, updateSettings, resetSettings } = useAISettings();
+
+  const n8nClient = useMemo(() => createN8NClient({
+    baseUrl: settings.n8nWebhookUrl,
+    apiKey: settings.n8nApiKey,
+  }), [settings.n8nWebhookUrl, settings.n8nApiKey]);
 
   const {
     leads,
@@ -66,26 +81,48 @@ const Index = () => {
     toggleEventCompleted,
   } = useLeadEvents();
 
-  // Build set of lead IDs that have upcoming events so stale logic ignores them
-  const upcomingEventLeadIds = useMemo(() => {
-    const now = new Date();
-    return new Set(events.filter((e) => !e.completed && new Date(e.scheduled_at) >= now).map((e) => e.lead_id));
-  }, [events]);
-
   const {
     projects,
     createProject,
     getClosedLeadsWithoutProject,
   } = useProjects();
 
+  const agent = useAgent({
+    settings,
+    leads,
+    events,
+    projects: projects.map((p) => ({
+      ...p,
+      lead_id: p.lead_id,
+      user_id: p.user_id,
+      contract_number: p.contract_number,
+      start_date: p.start_date,
+      deadline: p.deadline,
+      features: p.features,
+      status: p.status,
+      notes: p.notes,
+      position: p.position,
+    })),
+    userEmail: user?.email || null,
+    createLead,
+    updateLead,
+    createEvent,
+    updateEvent,
+    deleteEvent,
+    toggleEventCompleted,
+    moveLeadStatus: updateLeadStatus,
+    createProject,
+    triggerN8N: n8nClient.triggerWorkflow,
+  });
+
   // Process stale leads on mount and periodically
   useEffect(() => {
     const timer = setTimeout(() => {
-      processStaleLeads(upcomingEventLeadIds);
+      processStaleLeads();
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [processStaleLeads, upcomingEventLeadIds]);
+  }, [processStaleLeads]);
 
   // Separate active and archived leads
   const activeLeads = useMemo(() => leads.filter(l => !l.archived), [leads]);
@@ -160,7 +197,7 @@ const Index = () => {
   };
 
   const handleProcessStale = async () => {
-    await processStaleLeads(upcomingEventLeadIds);
+    await processStaleLeads();
   };
 
   const renderKanbanColumn = (columnId: string, index: number, isMobilePair = false) => {
@@ -174,7 +211,6 @@ const Index = () => {
         icon={column.icon}
         color={column.color}
         leads={leadsByStatus[column.id] || []}
-        events={events}
         onLeadClick={handleLeadClick}
         onDrop={handleDrop}
         onReorder={handleReorder}
@@ -203,6 +239,7 @@ const Index = () => {
               {activePage === 'analytics' && 'Analytics'}
               {activePage === 'settings' && 'Configurações'}
               {activePage === 'finance' && 'Financeiro'}
+              {activePage === 'ai-settings' && 'Operador AI'}
             </h2>
             <p className="text-xs text-marroc-salvia/70 font-mono hidden md:block">
               {new Date().toLocaleDateString('pt-BR', { 
@@ -242,6 +279,16 @@ const Index = () => {
                 )}
                 {activePage === 'pipeline' && <AddLeadModal onAdd={createLead} />}
               </>
+            )}
+            {activePage === 'ai-settings' && (
+              <Button
+                size="sm"
+                className="btn-marroc"
+                onClick={() => setAiChatOpen(true)}
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Abrir Chat
+              </Button>
             )}
             <ArchivedLeadsSheet
               archivedLeads={archivedLeads}
@@ -302,7 +349,6 @@ const Index = () => {
                         icon={column.icon}
                         color={column.color}
                         leads={leadsByStatus[column.id] || []}
-                        events={events}
                         onLeadClick={handleLeadClick}
                         onDrop={handleDrop}
                         onReorder={handleReorder}
@@ -348,6 +394,14 @@ const Index = () => {
 
               {activePage === 'analytics' && <AnalyticsView leads={activeLeads} />}
               
+              {activePage === 'ai-settings' && (
+                <AISettingsPanel
+                  settings={settings}
+                  onUpdate={updateSettings}
+                  onReset={resetSettings}
+                />
+              )}
+
               {activePage === 'settings' && <SettingsView />}
 
               {activePage === 'help' && <HelpView />}
@@ -398,6 +452,23 @@ const Index = () => {
         }}
         trigger={null}
       />
+
+      {/* AI Chat Modal */}
+      {aiChatOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-end p-4 pointer-events-none">
+          <div className="pointer-events-auto w-full max-w-md h-[70vh] md:h-[600px] animate-in slide-in-from-bottom-4 fade-in duration-300">
+            <AIChat
+              messages={agent.messages}
+              loading={agent.loading}
+              pendingToolCalls={agent.pendingToolCalls}
+              onSend={agent.sendMessage}
+              onApprove={agent.approvePendingTools}
+              onReject={agent.rejectPendingTools}
+              onClose={() => setAiChatOpen(false)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Add Lead Event Modal */}
       <AddLeadEventModal
