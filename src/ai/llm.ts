@@ -47,12 +47,16 @@ async function callOllamaCloud(settings: AISettings, request: LLMRequest): Promi
   const url = settings.ollamaCloudUrl.replace(/\/$/, '') + '/api/chat';
 
   const makeRequest = async (model: string): Promise<Response> => {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (settings.ollamaCloudApiKey) {
+      headers['Authorization'] = `Bearer ${encodeURIComponent(settings.ollamaCloudApiKey)}`;
+    }
+
     return fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(settings.ollamaCloudApiKey ? { Authorization: `Bearer ${settings.ollamaCloudApiKey}` } : {}),
-      },
+      headers,
       body: JSON.stringify({
         model,
         messages: request.messages.map((m) => ({
