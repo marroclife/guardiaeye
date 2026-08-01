@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Lead } from '@/types/lead';
 import { LeadEvent, LEAD_EVENT_TYPES, isEventToday, isEventPast, formatEventTime } from '@/types/leadEvent';
+import { CalendarWeekView } from '@/components/CalendarWeekView';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +23,7 @@ interface CalendarViewProps {
 export function CalendarView({ leads, events, onAddEvent, onToggleComplete, onDeleteEvent, onLeadClick }: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [viewMode, setViewMode] = useState<'month' | 'list'>('month');
+  const [viewMode, setViewMode] = useState<'month' | 'week' | 'list'>('month');
 
   const monthDays = useMemo(() => {
     const start = startOfMonth(currentMonth);
@@ -167,6 +168,14 @@ export function CalendarView({ leads, events, onAddEvent, onToggleComplete, onDe
             </Button>
             <Button
               size="sm"
+              variant={viewMode === 'week' ? 'secondary' : 'ghost'}
+              onClick={() => setViewMode('week')}
+              className={viewMode === 'week' ? 'bg-marroc-esmeralda/20 text-marroc-esmeralda' : 'text-marroc-salvia/70'}
+            >
+              Semana
+            </Button>
+            <Button
+              size="sm"
               variant={viewMode === 'list' ? 'secondary' : 'ghost'}
               onClick={() => setViewMode('list')}
               className={viewMode === 'list' ? 'bg-marroc-esmeralda/20 text-marroc-esmeralda' : 'text-marroc-salvia/70'}
@@ -226,29 +235,56 @@ export function CalendarView({ leads, events, onAddEvent, onToggleComplete, onDe
         </div>
       )}
 
+      {/* Week View */}
+      {viewMode === 'week' && (
+        <CalendarWeekView
+          currentDate={currentMonth}
+          events={events}
+          leads={leads}
+          onChangeWeek={setCurrentMonth}
+          onAddEvent={onAddEvent}
+          onLeadClick={onLeadClick}
+          onToggleComplete={onToggleComplete}
+          onDeleteEvent={onDeleteEvent}
+        />
+      )}
+
       {/* Month View */}
       {viewMode === 'month' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <Card className="p-4 glass-card border-marroc-dourado/10 lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                className="text-marroc-salvia hover:text-marroc-dourado"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                  className="text-marroc-salvia hover:text-marroc-dourado"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                  className="text-marroc-salvia hover:text-marroc-dourado"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+              </div>
               <h3 className="text-sm font-display text-marroc-dourado capitalize">
                 {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
               </h3>
               <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                className="text-marroc-salvia hover:text-marroc-dourado"
+                size="sm"
+                variant="outline"
+                className="border-marroc-dourado/15 text-marroc-esmeralda hover:bg-marroc-esmeralda/10"
+                onClick={() => {
+                  setCurrentMonth(new Date());
+                  setSelectedDate(new Date());
+                }}
               >
-                <ChevronRight className="w-5 h-5" />
+                Hoje
               </Button>
             </div>
 

@@ -276,15 +276,17 @@ export function useLeads() {
   }
 
   // Process stale leads - move to "sem_resposta" if inactive for X days
-  const processStaleLeads = useCallback(async () => {
+  const processStaleLeads = useCallback(async (upcomingEventLeadIds?: Set<string>) => {
     const staleDate = new Date();
     staleDate.setDate(staleDate.getDate() - STALE_LEAD_DAYS);
-    
+
     const staleLeads = leads.filter((lead) => {
       const lastContact = new Date(lead.last_contact_at);
       const isStale = lastContact < staleDate;
       const eligibleStatuses: LeadStatus[] = ['triagem', 'em_contato'];
-      return isStale && eligibleStatuses.includes(lead.status) && !lead.archived;
+      // Skip leads with upcoming scheduled events — they have an active engagement
+      const hasUpcomingEvent = upcomingEventLeadIds?.has(lead.id);
+      return isStale && eligibleStatuses.includes(lead.status) && !lead.archived && !hasUpcomingEvent;
     });
 
     if (staleLeads.length === 0) return 0;
@@ -296,11 +298,11 @@ export function useLeads() {
         .in('id', staleLeads.map((l) => l.id));
 
       if (error) throw error;
-      
+
       toast.info(`${staleLeads.length} lead(s) movido(s) para "Sem Resposta"`, {
-        description: 'Leads inativos há mais de 3 dias',
+        description: 'Leads inativos há mais de 3 dias sem eventos futuros',
       });
-      
+
       return staleLeads.length;
     } catch (error) {
       console.error('Error processing stale leads:', error);

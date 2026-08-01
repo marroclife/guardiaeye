@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import { Lead, LeadPriority, LEAD_SOURCES, isLeadStale, getDaysSinceContact } from '@/types/lead';
-import { Building2, DollarSign, Clock, AlertTriangle } from 'lucide-react';
+import { LeadEvent, formatEventTime } from '@/types/leadEvent';
+import { Building2, DollarSign, Clock, AlertTriangle, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LeadCardProps {
@@ -8,6 +10,7 @@ interface LeadCardProps {
   isDragging?: boolean;
   accentColor?: string;
   compact?: boolean;
+  events?: LeadEvent[];
 }
 
 const priorityConfig: Record<LeadPriority, { label: string; className: string }> = {
@@ -16,11 +19,19 @@ const priorityConfig: Record<LeadPriority, { label: string; className: string }>
   high: { label: 'Quente', className: 'temp-tag-hot' },
 };
 
-export function LeadCard({ lead, onClick, isDragging, accentColor, compact = false }: LeadCardProps) {
+export function LeadCard({ lead, onClick, isDragging, accentColor, compact = false, events }: LeadCardProps) {
   const priority = priorityConfig[lead.priority || 'medium'];
   const source = LEAD_SOURCES.find(s => s.id === lead.source);
   const stale = isLeadStale(lead);
   const daysSince = getDaysSinceContact(lead);
+
+  const nextEvent = useMemo(() => {
+    if (!events) return null;
+    const now = new Date();
+    return events
+      .filter((e) => e.lead_id === lead.id && !e.completed && new Date(e.scheduled_at) >= now)
+      .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())[0] || null;
+  }, [events, lead.id]);
   
   const formatValue = (value: number | null) => {
     if (!value) return null;
@@ -32,6 +43,11 @@ export function LeadCard({ lead, onClick, isDragging, accentColor, compact = fal
   };
 
   const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  };
+
+  const formatShortDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
   };
@@ -117,6 +133,19 @@ export function LeadCard({ lead, onClick, isDragging, accentColor, compact = fal
           >
             <AlertTriangle className={cn("flex-shrink-0", compact ? "w-3 h-3" : "w-3 h-3")} />
             <span className="whitespace-nowrap">{daysSince}d parado</span>
+          </div>
+        )}
+        {nextEvent && (
+          <div className={cn(
+            "flex items-center gap-1 font-light flex-shrink-0",
+            compact ? "text-[10px]" : "text-xs",
+            "text-marroc-esmeralda"
+          )}
+          >
+            <Calendar className={cn("flex-shrink-0", compact ? "w-3 h-3" : "w-3 h-3")} />
+            <span className="whitespace-nowrap">
+              {formatShortDate(nextEvent.scheduled_at)} {formatEventTime(nextEvent.scheduled_at)}
+            </span>
           </div>
         )}
       </div>

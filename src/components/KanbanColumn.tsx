@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Lead, LeadStatus, COLUMN_ACCENT_COLORS } from '@/types/lead';
+import { LeadEvent } from '@/types/leadEvent';
 import { LeadCard } from './LeadCard';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +10,7 @@ interface KanbanColumnProps {
   icon: string;
   color?: string;
   leads: Lead[];
+  events?: LeadEvent[];
   onLeadClick: (lead: Lead) => void;
   onDrop: (leadId: string, newStatus: LeadStatus, newPosition?: number) => void;
   onReorder: (reorderedLeads: { id: string; position: number }[]) => void;
@@ -22,6 +24,7 @@ export function KanbanColumn({
   icon,
   color,
   leads,
+  events,
   onLeadClick,
   onDrop,
   onReorder,
@@ -160,6 +163,7 @@ export function KanbanColumn({
               onClick={() => onLeadClick(lead)} 
               accentColor={accentColor}
               compact={compact}
+              events={events}
             />
           </div>
         ))}

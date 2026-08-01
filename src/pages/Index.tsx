@@ -66,6 +66,12 @@ const Index = () => {
     toggleEventCompleted,
   } = useLeadEvents();
 
+  // Build set of lead IDs that have upcoming events so stale logic ignores them
+  const upcomingEventLeadIds = useMemo(() => {
+    const now = new Date();
+    return new Set(events.filter((e) => !e.completed && new Date(e.scheduled_at) >= now).map((e) => e.lead_id));
+  }, [events]);
+
   const {
     projects,
     createProject,
@@ -75,11 +81,11 @@ const Index = () => {
   // Process stale leads on mount and periodically
   useEffect(() => {
     const timer = setTimeout(() => {
-      processStaleLeads();
+      processStaleLeads(upcomingEventLeadIds);
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [processStaleLeads]);
+  }, [processStaleLeads, upcomingEventLeadIds]);
 
   // Separate active and archived leads
   const activeLeads = useMemo(() => leads.filter(l => !l.archived), [leads]);
@@ -154,7 +160,7 @@ const Index = () => {
   };
 
   const handleProcessStale = async () => {
-    await processStaleLeads();
+    await processStaleLeads(upcomingEventLeadIds);
   };
 
   const renderKanbanColumn = (columnId: string, index: number, isMobilePair = false) => {
@@ -168,6 +174,7 @@ const Index = () => {
         icon={column.icon}
         color={column.color}
         leads={leadsByStatus[column.id] || []}
+        events={events}
         onLeadClick={handleLeadClick}
         onDrop={handleDrop}
         onReorder={handleReorder}
@@ -295,6 +302,7 @@ const Index = () => {
                         icon={column.icon}
                         color={column.color}
                         leads={leadsByStatus[column.id] || []}
+                        events={events}
                         onLeadClick={handleLeadClick}
                         onDrop={handleDrop}
                         onReorder={handleReorder}
