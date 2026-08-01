@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronLeft, ChevronRight, CalendarDays, Clock, AlertCircle, Plus, Trash2, ExternalLink } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 interface CalendarViewProps {
@@ -26,8 +26,10 @@ export function CalendarView({ leads, events, onAddEvent, onToggleComplete, onDe
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'list'>('month');
 
   const monthDays = useMemo(() => {
-    const start = startOfMonth(currentMonth);
-    const end = endOfMonth(currentMonth);
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(currentMonth);
+    const start = startOfWeek(monthStart, { weekStartsOn: 0 });
+    const end = endOfWeek(monthEnd, { weekStartsOn: 0 });
     return eachDayOfInterval({ start, end });
   }, [currentMonth]);
 
@@ -303,36 +305,56 @@ export function CalendarView({ leads, events, onAddEvent, onToggleComplete, onDe
                 const isSelected = selectedDate ? isSameDay(day, selectedDate) : false;
                 const isCurrentMonth = isSameMonth(day, currentMonth);
                 const isToday = isSameDay(day, new Date());
+                const hasEvents = dayEvents.length > 0;
+                const pendingEvents = dayEvents.filter((e) => !e.completed).length;
 
                 return (
                   <button
                     key={key}
-                    onClick={() => setSelectedDate(day)}
+                    onClick={() => {
+                      if (!isCurrentMonth) {
+                        setCurrentMonth(day);
+                      }
+                      setSelectedDate(day);
+                    }}
                     className={`
-                      min-h-[80px] p-1 rounded-lg border text-left transition-all
-                      ${isSelected ? 'bg-marroc-esmeralda/10 border-marroc-esmeralda/50' : 'border-marroc-dourado/10 hover:border-marroc-dourado/25'}
-                      ${!isCurrentMonth ? 'opacity-40' : ''}
-                      ${isToday ? 'ring-1 ring-marroc-esmeralda/50' : ''}
+                      min-h-[80px] p-1.5 rounded-lg border text-left transition-all relative
+                      ${isSelected ? 'bg-marroc-esmeralda/10 border-marroc-esmeralda/60' : 'border-marroc-dourado/10 hover:border-marroc-dourado/30'}
+                      ${!isCurrentMonth ? 'opacity-50 bg-marroc-dourado/5' : ''}
+                      ${isToday && !isSelected ? 'ring-1 ring-marroc-esmeralda/60' : ''}
+                      ${hasEvents ? 'hover:bg-marroc-dourado/5' : ''}
                     `}
                   >
-                    <span className={`text-xs font-mono ${isToday ? 'text-marroc-esmeralda font-semibold' : 'text-marroc-salvia/80'}`}>
-                      {format(day, 'd')}
-                    </span>
-                    <div className="mt-1 space-y-0.5">
-                      {dayEvents.slice(0, 3).map((event, idx) => {
+                    <div className="flex items-center justify-between">
+                      <span className={`text-xs font-mono ${isToday ? 'text-marroc-esmeralda font-semibold' : 'text-marroc-salvia/80'}`}>
+                        {format(day, 'd')}
+                      </span>
+                      {hasEvents && (
+                        <span className="flex h-2 w-2 rounded-full bg-marroc-esmeralda" />
+                      )}
+                    </div>
+
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                      {dayEvents.slice(0, 4).map((event, idx) => {
                         const type = getEventType(event.type);
                         return (
                           <div
                             key={idx}
-                            className={`h-1.5 rounded-full ${type.color.split(' ')[0].replace('/20', '/40')}`}
+                            className={`h-2 w-2 rounded-full ${type.color.split(' ')[0].replace('/20', '').replace('/15', '')}`}
                             title={`${event.title} · ${formatEventTime(event.scheduled_at)}`}
                           />
                         );
                       })}
-                      {dayEvents.length > 3 && (
-                        <div className="text-[9px] text-marroc-salvia/60">+{dayEvents.length - 3}</div>
+                      {dayEvents.length > 4 && (
+                        <span className="text-[9px] leading-none text-marroc-salvia/70 ml-0.5">+{dayEvents.length - 4}</span>
                       )}
                     </div>
+
+                    {pendingEvents > 0 && (
+                      <div className="absolute bottom-1 right-1.5 text-[9px] font-medium text-marroc-esmeralda/80">
+                        {pendingEvents}
+                      </div>
+                    )}
                   </button>
                 );
               })}
