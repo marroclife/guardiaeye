@@ -26,7 +26,7 @@ import { useAISettings } from '@/hooks/useAISettings';
 import { useAgent } from '@/ai/useAgent';
 import { createN8NClient } from '@/integrations/n8n/client';
 import { Lead, KANBAN_COLUMNS } from '@/types/lead';
-import { Users, TrendingUp, Bell, Loader2, RefreshCw, MessageSquare } from 'lucide-react';
+import { Users, TrendingUp, Bell, Loader2, RefreshCw, MessageSquare, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const MOBILE_COLUMN_PAIRS: [string, string][] = [
@@ -453,7 +453,7 @@ const Index = () => {
         trigger={null}
       />
 
-      {/* AI Chat Modal */}
+      {/* AI Chat Modal — available globally */}
       {aiChatOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-end p-4 pointer-events-none">
           <div className="pointer-events-auto w-full max-w-md h-[70vh] md:h-[600px] animate-in slide-in-from-bottom-4 fade-in duration-300">
@@ -469,6 +469,18 @@ const Index = () => {
           </div>
         </div>
       )}
+
+      {/* Floating AI Button — available on all pages */}
+      <button
+        onClick={() => setAiChatOpen(true)}
+        className={`fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 rounded-full shadow-lg transition-all duration-300 hover:scale-105 ${
+          aiChatOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        } bg-marroc-esmeralda/20 border border-marroc-esmeralda/40 text-marroc-esmeralda hover:bg-marroc-esmeralda/30 hover:border-marroc-esmeralda/60`}
+        aria-label="Abrir Nexo Operador"
+      >
+        <Sparkles className="w-5 h-5" />
+        <span className="text-sm font-medium hidden sm:inline">Nexo Operador</span>
+      </button>
 
       {/* Add Lead Event Modal */}
       <AddLeadEventModal
