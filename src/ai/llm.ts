@@ -14,8 +14,9 @@ export interface LLMResponse {
 export async function callLLM(settings: AISettings, request: LLMRequest): Promise<LLMResponse> {
   switch (settings.provider) {
     case 'ollama-cloud':
+      return callOllamaCloud(settings, request);
     case 'ollama-local':
-      return callOllama(settings, request);
+      return callOllamaLocal(settings, request);
     case 'openai':
       return callOpenAI(settings, request);
     case 'anthropic':
@@ -27,19 +28,33 @@ export async function callLLM(settings: AISettings, request: LLMRequest): Promis
   }
 }
 
-async function callOllama(settings: AISettings, request: LLMRequest): Promise<LLMResponse> {
-  const baseUrl = settings.provider === 'ollama-cloud'
-    ? settings.ollamaCloudUrl.replace(/\/$/, '')
-    : settings.ollamaLocalUrl.replace(/\/$/, '');
+export async function callLLMWithFallback(settings: AISettings, request: LLMRequest): Promise<LLMResponse> {
+  const primary = await callLLM(settings, request);
+  if (primary.content && !primary.error) return primary;
 
-  const url = `${baseUrl}/api/chat`;
+  if (settings.provider === 'ollama-cloud' && settings.fallbackModel && settings.fallbackModel !== settings.model) {
+    const fallbackSettings = { ...settings, model: settings.fallbackModel };
+    const fallback = await callLLM(fallbackSettings, request);
+    if (fallback.content && !fallback.error) {
+      return { content: fallback.content, error: `(fallback: ${settings.fallbackModel})` };
+    }
+  }
 
-  try {
-    const response = await fetch(url, {
+  return primary;
+}
+
+async function callOllamaCloud(settings: AISettings, request: LLMRequest): Promise<LLMResponse> {
+  const url = settings.ollamaCloudUrl.replace(/\/$/, '') + '/api/chat';
+
+  const makeRequest = async (model: string): Promise<Response> => {
+    return fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(settings.ollamaCloudApiKey ? { Authorization: `Bearer ${settings.ollamaCloudApiKey}` } : {}),
+      },
       body: JSON.stringify({
-        model: settings.model,
+        model,
         messages: request.messages.map((m) => ({
           role: m.role === 'tool' ? 'user' : m.role,
           content: m.content,
@@ -47,24 +62,53 @@ async function callOllama(settings: AISettings, request: LLMRequest): Promise<LL
         stream: false,
         options: {
           temperature: request.temperature ?? 0.3,
+          top_p: 0.9,
           num_predict: request.maxTokens ?? 2048,
         },
       }),
     });
+  };
+
+  try {
+    let response = await makeRequest(settings.model);
+
+    if (response.status === 429 && settings.ollamaCloudApiKey) {
+      await new Promise((r) => setTimeout(r, 2000));
+      response = await makeRequest(settings.model);
+    }
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`Ollama HTTP ${response.status}: ${text}`);
+      throw new Error(`Ollama Cloud HTTP ${response.status}: ${text}`);
     }
 
-    const data = (await response.json()) as { message?: { content?: string } };
-    return { content: data.message?.content || '' };
+    const data = (await response.json()) as { message?: { content?: string }; done_reason?: string };
+    const content = data.message?.content || '';
+
+    if (data.done_reason === 'length' && content.length < 80 && settings.fallbackModel) {
+      const retryResponse = await makeRequest(settings.fallbackModel);
+      if (retryResponse.ok) {
+        const retryData = (await retryResponse.json()) as { message?: { content?: string } };
+        if (retryData.message?.content && retryData.message.content.length > content.length) {
+          return { content: retryData.message.content, error: `(fallback: ${settings.fallbackModel})` };
+        }
+      }
+    }
+
+    return { content };
   } catch (error) {
     return {
       content: '',
-      error: `Erro ao chamar Ollama: ${error instanceof Error ? error.message : String(error)}`,
+      error: `Erro ao chamar Ollama Cloud: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
+}
+
+async function callOllamaLocal(settings: AISettings, request: LLMRequest): Promise<LLMResponse> {
+  return {
+    content: '',
+    error: 'Execução local desativada. Configure Ollama Cloud ou outro provedor.',
+  };
 }
 
 async function callOpenAI(settings: AISettings, request: LLMRequest): Promise<LLMResponse> {

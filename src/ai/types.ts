@@ -7,8 +7,9 @@ export type AIProvider = 'ollama-cloud' | 'ollama-local' | 'openai' | 'anthropic
 export interface AISettings {
   provider: AIProvider;
   model: string;
+  fallbackModel: string;
   ollamaCloudUrl: string;
-  ollamaLocalUrl: string;
+  ollamaCloudApiKey: string;
   openaiApiKey: string;
   anthropicApiKey: string;
   n8nWebhookUrl: string;
@@ -19,8 +20,9 @@ export interface AISettings {
 export const DEFAULT_AI_SETTINGS: AISettings = {
   provider: 'ollama-cloud',
   model: 'gemma4:31b-cloud',
-  ollamaCloudUrl: 'https://nexooperator.app.n8n.cloud/webhook/ollama',
-  ollamaLocalUrl: 'http://127.0.0.1:11434',
+  fallbackModel: 'kimi-k2.5:cloud',
+  ollamaCloudUrl: 'https://ollama.com/api/chat',
+  ollamaCloudApiKey: '',
   openaiApiKey: '',
   anthropicApiKey: '',
   n8nWebhookUrl: 'https://nexooperator.app.n8n.cloud/webhook/',

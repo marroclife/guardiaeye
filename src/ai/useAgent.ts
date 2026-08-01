@@ -4,7 +4,7 @@ import { AgentMessage, AISettings, ToolCall, ToolName, ToolResult, AgentResponse
 import { Lead } from '@/types/lead';
 import { LeadEvent } from '@/types/leadEvent';
 import { Project } from '@/types/project';
-import { callLLM } from './llm';
+import { callLLM, callLLMWithFallback } from './llm';
 import { buildToolsPrompt, parseToolCalls, createToolResult } from './tools';
 import { formatSystemContext, buildSystemContext } from './context';
 
@@ -175,7 +175,7 @@ export function useAgent({
     const currentMessages = [...messages, userMessage];
     const llmMessages: AgentMessage[] = [systemMessage, ...currentMessages];
 
-    const response = await callLLM(settings, { messages: llmMessages });
+    const response = await callLLMWithFallback(settings, { messages: llmMessages });
 
     if (response.error) {
       const assistantMessage: AgentMessage = {
@@ -230,7 +230,7 @@ export function useAgent({
         },
       ];
 
-      const finalResponse = await callLLM(settings, {
+      const finalResponse = await callLLMWithFallback(settings, {
         messages: [systemMessage, ...followUpMessages],
         temperature: 0.3,
       });
@@ -301,7 +301,7 @@ export function useAgent({
       },
     ];
 
-    const finalResponse = await callLLM(settings, {
+    const finalResponse = await callLLMWithFallback(settings, {
       messages: [systemMessage, ...updatedMessages],
       temperature: 0.3,
     });

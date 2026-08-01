@@ -27,8 +27,8 @@ const PROVIDERS: { id: AIProvider; label: string }[] = [
 ];
 
 const MODELS_BY_PROVIDER: Record<AIProvider, string[]> = {
-  'ollama-cloud': ['gemma4:31b-cloud', 'qwen2.5:14b', 'qwen2.5:32b', 'llama3.3:70b'],
-  'ollama-local': ['gemma4:31b-cloud', 'qwen2.5:14b', 'llama3.2:3b', 'deepseek-r1:14b'],
+  'ollama-cloud': ['gemma4:31b-cloud', 'kimi-k2.5:cloud'],
+  'ollama-local': ['gemma4:31b-cloud', 'qwen2.5:14b'],
   openai: ['gpt-4o-mini', 'gpt-4o', 'gpt-4.1-mini'],
   anthropic: ['claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022'],
   n8n: ['n8n-agent'],
@@ -96,6 +96,27 @@ export function AISettingsPanel({ settings, onUpdate, onReset }: AISettingsProps
               </SelectContent>
             </Select>
           </div>
+
+          {settings.provider === 'ollama-cloud' && (
+            <div className="space-y-2">
+              <Label htmlFor="fallbackModel">Modelo de Fallback</Label>
+              <Select
+                value={settings.fallbackModel}
+                onValueChange={(value) => onUpdate({ fallbackModel: value })}
+              >
+                <SelectTrigger className="bg-marroc-dourado/5 border-marroc-dourado/15">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-marroc-muscgo/95 border-marroc-dourado/15">
+                  {MODELS_BY_PROVIDER['ollama-cloud'].map((model) => (
+                    <SelectItem key={model} value={model}>
+                      {model}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         <div className="space-y-4 p-4 rounded-lg glass-card border border-marroc-dourado/10">
@@ -119,20 +140,30 @@ export function AISettingsPanel({ settings, onUpdate, onReset }: AISettingsProps
         <div className="space-y-4 p-4 rounded-lg glass-card border border-marroc-dourado/10">
           <h3 className="text-sm font-medium text-marroc-texto">Endpoints</h3>
 
-          {(settings.provider === 'ollama-cloud' || settings.provider === 'ollama-local') && (
-            <div className="space-y-2">
-              <Label htmlFor="ollamaUrl">URL do Ollama</Label>
-              <Input
-                id="ollamaUrl"
-                value={settings.provider === 'ollama-cloud' ? settings.ollamaCloudUrl : settings.ollamaLocalUrl}
-                onChange={(e) => onUpdate(
-                  settings.provider === 'ollama-cloud'
-                    ? { ollamaCloudUrl: e.target.value }
-                    : { ollamaLocalUrl: e.target.value }
-                )}
-                className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
-              />
-            </div>
+          {settings.provider === 'ollama-cloud' && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="ollamaUrl">URL do Ollama Cloud</Label>
+                <Input
+                  id="ollamaUrl"
+                  value={settings.ollamaCloudUrl}
+                  onChange={(e) => onUpdate({ ollamaCloudUrl: e.target.value })}
+                  className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
+                  placeholder="https://ollama.com/api/chat"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ollamaApiKey">Ollama Cloud API Key</Label>
+                <Input
+                  id="ollamaApiKey"
+                  type="password"
+                  value={settings.ollamaCloudApiKey}
+                  onChange={(e) => onUpdate({ ollamaCloudApiKey: e.target.value })}
+                  className="bg-marroc-dourado/5 border-marroc-dourado/15 focus:border-marroc-esmeralda"
+                  placeholder="Bearer token"
+                />
+              </div>
+            </>
           )}
 
           {settings.provider === 'openai' && (
@@ -163,7 +194,7 @@ export function AISettingsPanel({ settings, onUpdate, onReset }: AISettingsProps
             </div>
           )}
 
-          {(settings.provider === 'n8n' || settings.provider === 'ollama-cloud') && (
+          {settings.provider === 'n8n' && (
             <>
               <div className="space-y-2">
                 <Label htmlFor="n8nUrl">N8N Webhook Base URL</Label>
@@ -194,6 +225,7 @@ export function AISettingsPanel({ settings, onUpdate, onReset }: AISettingsProps
           <div className="text-xs text-marroc-salvia/80 space-y-1">
             <p><span className="text-marroc-dourado">Provedor:</span> {settings.provider}</p>
             <p><span className="text-marroc-dourado">Modelo:</span> {settings.model}</p>
+            <p><span className="text-marroc-dourado">Fallback:</span> {settings.fallbackModel || 'nenhum'}</p>
             <p><span className="text-marroc-dourado">Auto-execução:</span> {settings.autoExecute ? 'Ativada' : 'Desativada'}</p>
           </div>
         </div>
