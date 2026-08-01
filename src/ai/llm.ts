@@ -44,7 +44,7 @@ export async function callLLMWithFallback(settings: AISettings, request: LLMRequ
 }
 
 async function callOllamaCloud(settings: AISettings, request: LLMRequest): Promise<LLMResponse> {
-  const url = 'https://ollama.com/api/chat';
+  const url = '/api/ollama';
   const apiKey = (settings.ollamaCloudApiKey || '').toString().replace(/[^\x20-\x7E]/g, '').trim();
 
   const makeRequest = async (model: string): Promise<Response> => {
@@ -52,7 +52,7 @@ async function callOllamaCloud(settings: AISettings, request: LLMRequest): Promi
       'Content-Type': 'application/json',
     };
     if (apiKey) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
+      headers['X-Ollama-Api-Key'] = apiKey;
     }
 
     return fetch(url, {
