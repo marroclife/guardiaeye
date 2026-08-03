@@ -15,7 +15,7 @@ import { ProjectsView } from '@/components/ProjectsView';
 import { FinanceView } from '@/components/FinanceView';
 import { CalendarView } from '@/components/CalendarView';
 import { AddProjectModal } from '@/components/AddProjectModal';
-import { AddLeadEventModal } from '@/components/AddLeadEventModal';
+import { LeadEventModal } from '@/components/AddLeadEventModal';
 import { AIChat } from '@/components/AIChat';
 import { AISettingsPanel } from '@/components/AISettings';
 import { useLeads } from '@/hooks/useLeads';
@@ -47,6 +47,7 @@ const Index = () => {
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const [eventInitialLeadId, setEventInitialLeadId] = useState<string | undefined>(undefined);
   const [eventInitialDate, setEventInitialDate] = useState<Date | undefined>(undefined);
+  const [eventToEdit, setEventToEdit] = useState<LeadEvent | null>(null);
 
   const [aiChatOpen, setAiChatOpen] = useState(false);
   const { user } = useAuth();
@@ -483,19 +484,22 @@ const Index = () => {
       </button>
 
       {/* Add Lead Event Modal */}
-      <AddLeadEventModal
+      <LeadEventModal
         leads={activeLeads}
         initialLeadId={eventInitialLeadId}
         initialDate={eventInitialDate}
+        eventToEdit={eventToEdit}
         open={eventModalOpen}
         onOpenChange={(open) => {
           setEventModalOpen(open);
           if (!open) {
             setEventInitialLeadId(undefined);
             setEventInitialDate(undefined);
+            setEventToEdit(null);
           }
         }}
         onAdd={createEvent}
+        onUpdate={updateEvent}
       />
     </div>
   );
