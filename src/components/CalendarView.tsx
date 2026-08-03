@@ -7,7 +7,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ChevronLeft, ChevronRight, CalendarDays, Clock, AlertCircle, Plus, Trash2, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarDays, Clock, AlertCircle, Plus, Trash2, ExternalLink, Pencil } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -17,10 +17,11 @@ interface CalendarViewProps {
   onAddEvent: (date?: Date, leadId?: string) => void;
   onToggleComplete: (eventId: string, completed: boolean) => void;
   onDeleteEvent: (eventId: string) => void;
+  onEditEvent: (event: LeadEvent) => void;
   onLeadClick: (lead: Lead) => void;
 }
 
-export function CalendarView({ leads, events, onAddEvent, onToggleComplete, onDeleteEvent, onLeadClick }: CalendarViewProps) {
+export function CalendarView({ leads, events, onAddEvent, onToggleComplete, onDeleteEvent, onEditEvent, onLeadClick }: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'list'>('month');
@@ -135,15 +136,24 @@ export function CalendarView({ leads, events, onAddEvent, onToggleComplete, onDe
               <p className="text-xs text-marroc-salvia/60 mt-2 line-clamp-2">{event.notes}</p>
             )}
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-marroc-salvia/50 hover:text-red-300 hover:bg-red-500/10 flex-shrink-0"
-            onClick={() => onDeleteEvent(event.id)}
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </Button>
-        </div>
+          <div className="flex flex-col gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-marroc-salvia/50 hover:text-marroc-dourado hover:bg-marroc-dourado/10 flex-shrink-0"
+              onClick={() => onEditEvent(event)}
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-marroc-salvia/50 hover:text-red-300 hover:bg-red-500/10 flex-shrink-0"
+              onClick={() => onDeleteEvent(event.id)}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </Button>
+          </div>        </div>
       </Card>
     );
   };

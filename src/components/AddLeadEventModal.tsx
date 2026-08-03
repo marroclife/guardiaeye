@@ -33,14 +33,27 @@ interface AddLeadEventModalProps {
   onAdd: (event: Omit<LeadEvent, 'id' | 'created_at' | 'updated_at'>) => void;
 }
 
-export function AddLeadEventModal({
+interface LeadEventModalProps {
+  leads: Lead[];
+  initialLeadId?: string;
+  initialDate?: Date;
+  eventToEdit?: LeadEvent | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAdd: (event: Omit<LeadEvent, 'id' | 'created_at' | 'updated_at'>) => void;
+  onUpdate: (id: string, updates: Partial<LeadEvent>) => void;
+}
+
+export function LeadEventModal({
   leads,
   initialLeadId,
   initialDate,
+  eventToEdit,
   open,
   onOpenChange,
   onAdd,
-}: AddLeadEventModalProps) {
+  onUpdate,
+}: LeadEventModalProps) {
   const [formData, setFormData] = useState({
     leadId: initialLeadId || '',
     title: '',
@@ -53,13 +66,33 @@ export function AddLeadEventModal({
 
   useEffect(() => {
     if (open) {
-      setFormData((prev) => ({
-        ...prev,
-        leadId: initialLeadId || prev.leadId || '',
-        date: initialDate || prev.date || new Date(),
-      }));
+      if (eventToEdit) {
+        const date = new Date(eventToEdit.scheduled_at);
+        const time = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        
+        setFormData({
+          leadId: eventToEdit.lead_id,
+          title: eventToEdit.title,
+          type: eventToEdit.type,
+          date: date,
+          time: time,
+          duration: eventToEdit.duration_minutes?.toString() || '60',
+          notes: eventToEdit.notes || '',
+        });
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          leadId: initialLeadId || prev.leadId || '',
+          date: initialDate || prev.date || new Date(),
+          title: '',
+          type: 'reuniao',
+          time: '09:00',
+          duration: '60',
+          notes: '',
+        }));
+      }
     }
-  }, [open, initialLeadId, initialDate]);
+  }, [open, initialLeadId, initialDate, eventToEdit]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,26 +102,27 @@ export function AddLeadEventModal({
     const scheduledAt = new Date(formData.date);
     scheduledAt.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
 
-    onAdd({
-      lead_id: formData.leadId,
-      title: formData.title,
-      type: formData.type,
-      scheduled_at: scheduledAt.toISOString(),
-      duration_minutes: formData.duration ? parseInt(formData.duration, 10) : null,
-      notes: formData.notes || null,
-      completed: false,
-      completed_at: null,
-    });
+    if (eventToEdit) {
+      onUpdate(eventToEdit.id, {
+        title: formData.title,
+        type: formData.type,
+        scheduled_at: scheduledAt.toISOString(),
+        duration_minutes: formData.duration ? parseInt(formData.duration, 10) : null,
+        notes: formData.notes || null,
+      });
+    } else {
+      onAdd({
+        lead_id: formData.leadId,
+        title: formData.title,
+        type: formData.type,
+        scheduled_at: scheduledAt.toISOString(),
+        duration_minutes: formData.duration ? parseInt(formData.duration, 10) : null,
+        notes: formData.notes || null,
+        completed: false,
+        completed_at: null,
+      });
+    }
 
-    setFormData({
-      leadId: initialLeadId || '',
-      title: '',
-      type: 'reuniao',
-      date: new Date(),
-      time: '09:00',
-      duration: '60',
-      notes: '',
-    });
     onOpenChange(false);
   };
 
@@ -99,8 +133,8 @@ export function AddLeadEventModal({
       <DialogContent className="glass-card border-marroc-dourado/15 bg-marroc-muscgo/95 backdrop-blur-xl sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-display font-bold text-marroc-dourado flex items-center gap-2">
-            <Plus className="w-5 h-5 text-marroc-esmeralda" />
-            Agendar Evento
+            {eventToEdit ? <Clock className="w-5 h-5 text-marroc-esmeralda" /> : <Plus className="w-5 h-5 text-marroc-esmeralda" />}
+            {eventToEdit ? 'Editar Evento' : 'Agendar Evento'}
           </DialogTitle>
         </DialogHeader>
 
@@ -247,7 +281,7 @@ export function AddLeadEventModal({
               disabled={!formData.leadId || !formData.title}
               className="flex-1 btn-marroc"
             >
-              Agendar
+              {eventToEdit ? 'Salvar Alterações' : 'Agendar'}
             </Button>
           </div>
         </form>
