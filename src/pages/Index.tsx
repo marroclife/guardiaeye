@@ -378,10 +378,17 @@ const Index = () => {
                   onAddEvent={(date, leadId) => {
                     setEventInitialDate(date);
                     setEventInitialLeadId(leadId);
+                    setEventToEdit(null);
                     setEventModalOpen(true);
                   }}
                   onToggleComplete={toggleEventCompleted}
                   onDeleteEvent={deleteEvent}
+                  onEditEvent={(event) => {
+                    setEventInitialDate(new Date(event.scheduled_at));
+                    setEventInitialLeadId(event.lead_id);
+                    setEventToEdit(event);
+                    setEventModalOpen(true);
+                  }}
                   onLeadClick={(lead) => {
                     setSelectedLead(lead);
                     setSheetOpen(true);
