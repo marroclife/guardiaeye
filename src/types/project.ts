@@ -66,11 +66,13 @@ export function getDaysUntilDeadline(project: Project): number | null {
 }
 
 export function isDeadlineClose(project: Project): boolean {
+  if (project.status === 'concluido' || !project.deadline) return false;
   const days = getDaysUntilDeadline(project);
   return days !== null && days >= 0 && days <= 7;
 }
 
 export function isDeadlineOverdue(project: Project): boolean {
+  if (project.status === 'concluido' || !project.deadline) return false;
   const days = getDaysUntilDeadline(project);
   return days !== null && days < 0;
 }
