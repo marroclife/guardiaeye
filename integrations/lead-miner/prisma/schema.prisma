@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LeadStatus {
+  NEW
+  QUALIFIED
+  CONTACTED
+  NEGOTIATING
+  CLOSED
+  REJECTED
+}
+
+enum PriorityLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model Lead {
+  id               String        @id @default(cuid())
+  placeId          String        @unique
+  name             String
+  category         String        @default("Boutique Hotel")
+  location         String
+  address          String?
+  rating           Float?        @default(0.0)
+  reviewCount      Int?          @default(0)
+  phone            String?
+  website          String?
+  mapsUrl          String?
+  latitude         Float?
+  longitude        Float?
+  priceLevel       Int?          @default(3) // 1 to 4 luxury scale
+  
+  // AI Diagnostics & Qualification
+  status           LeadStatus    @default(NEW)
+  priority         PriorityLevel @default(HIGH)
+  opportunityScore Int           @default(85) // 0 - 100
+  painPoint        String?       // e.g., "High OTA Commission Reliance", "No Direct Booking Website"
+  estimatedLoss    String?       // e.g., "Losing $18,000 - $35,000/mo (15-22%) in commission to OTAs"
+  diagnosticNotes  String?       @db.Text
+  techStackDetected String?      // e.g., "Wix / Direct Booking Link missing", "OTA redirect to Booking.com"
+  
+  // AI Outreach Pitch Material
+  generatedPitch   String?       @db.Text // Default ready-to-send outreach copy
+  pitchEmail       String?       @db.Text // Cold Email subject & body
+  pitchWhatsApp    String?       @db.Text // WhatsApp formatted message
+  pitchPhone       String?       @db.Text // 30-second cold call hook
+  
+  // Deal Management & Metadata
+  customNotes      String?       @db.Text
+  dealValueEst     Float?        @default(15000.0) // Estimated agency contract value
+  tags             String[]      @default([])
+  lastContactedAt  DateTime?
+  
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([status])
+  @@index([priority])
+  @@index([location])
+  @@index([rating])
+}

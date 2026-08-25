@@ -1,0 +1,6 @@
+{
+  "name": "LuxuryLead AI - Hospitality Prospecting Engine",
+  "description": "Automated High-Ticket Lead Prospecting & AI Qualification Engine for Luxury Boutique Hotels & Resorts",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
