@@ -1,6 +1,6 @@
 import { Lead, LeadStats, LeadStatus, PriorityLevel } from '../types';
 import { getCuratedHubProspects } from './google-places';
-import { qualifyLeadWithGemini } from './gemini-qualifier';
+import { qualifyLeadWithOllama } from './ollama-qualifier';
 
 /**
  * In-memory & Persistent Lead Store
@@ -26,7 +26,7 @@ class LeadRepository {
     for (const seed of allSeeds) {
       if (!seed.placeId) continue;
       
-      const diag = await qualifyLeadWithGemini(seed);
+      const diag = await qualifyLeadWithOllama(seed);
 
       const lead: Lead = {
         id: `lead_${seed.placeId}`,

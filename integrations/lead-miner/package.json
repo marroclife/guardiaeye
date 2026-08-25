@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild api/index.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=api/index.cjs",
+    "build": "vite build && npm run build:api",
+    "build:api": "esbuild api/index.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=api/index.cjs",
     "start": "node api/index.cjs",
     "preview": "vite preview",
-    "clean": "rm -rf dist api/index.cjs",
+    "clean": "rm -rf dist api/index.cjs api/index.cjs.map",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

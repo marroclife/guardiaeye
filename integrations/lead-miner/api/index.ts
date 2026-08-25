@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { searchGooglePlaces, LUXURY_HUBS } from '../src/lib/google-places';
-import { qualifyLeadWithGemini } from '../src/lib/gemini-qualifier';
+import { qualifyLeadWithOllama } from '../src/lib/ollama-qualifier';
 import { leadDb } from '../src/lib/db';
 import { exportLeadsToNexus } from '../src/lib/nexus-bridge';
 
@@ -13,7 +13,7 @@ app.use(express.json());
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    hasGeminiKey: !!(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'MY_GEMINI_API_KEY'),
+    hasOllamaKey: !!(process.env.OLLAMA_CLOUD_API_KEY && process.env.OLLAMA_CLOUD_API_KEY !== ''),
     hasMapsKey: !!(process.env.GOOGLE_MAPS_API_KEY && process.env.GOOGLE_MAPS_API_KEY !== 'MY_GOOGLE_MAPS_API_KEY'),
   });
 });
@@ -79,7 +79,7 @@ app.post('/api/leads/search', async (req, res) => {
 
     const newQualifiedLeads = [];
     for (const place of filteredPlaces) {
-      const diag = await qualifyLeadWithGemini(place);
+      const diag = await qualifyLeadWithOllama(place);
       const savedLead = await leadDb.createOrUpdate({
         placeId: place.placeId,
         name: place.name || 'Luxury Boutique Property',
@@ -157,7 +157,7 @@ app.post('/api/leads/:id/qualify', async (req, res) => {
   try {
     const lead = leadDb.getById(req.params.id);
     if (!lead) return res.status(404).json({ success: false, error: 'Lead not found' });
-    const diag = await qualifyLeadWithGemini(lead);
+    const diag = await qualifyLeadWithOllama(lead);
     const updated = await leadDb.createOrUpdate({
       id: lead.id,
       priority: diag.priority,
@@ -184,7 +184,7 @@ app.post('/api/leads/:id/pitch', async (req, res) => {
     const lead = leadDb.getById(req.params.id);
     if (!lead) return res.status(404).json({ success: false, error: 'Lead not found' });
     const { tone = 'consultative', channel = 'whatsapp', customHook = '' } = req.body;
-    const diag = await qualifyLeadWithGemini({
+    const diag = await qualifyLeadWithOllama({
       ...lead,
       customNotes: `Requested Tone: ${tone}. Focus Channel: ${channel}. Custom Context: ${customHook}`,
     });
@@ -205,7 +205,7 @@ app.post('/api/leads/reset', async (req, res) => {
   leadDb.clearAll();
   const tulumLeads = await searchGooglePlaces({ query: 'Boutique Hotel', locationName: 'Tulum, Quintana Roo' });
   for (const place of tulumLeads) {
-    const diag = await qualifyLeadWithGemini(place);
+    const diag = await qualifyLeadWithOllama(place);
     await leadDb.createOrUpdate({
       ...place,
       status: 'NEW',

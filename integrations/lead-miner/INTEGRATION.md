@@ -6,7 +6,7 @@ O LEAD-Minner foi integrado como um **módulo de aquisição de leads** dentro d
 
 Ele funciona como um pipeline independente que:
 1. **Minera** leads de alta ticket (hospedagem de luxo) via Google Places API.
-2. **Qualifica** com Gemini (diagnóstico de dor, perda estimada, stack detectado).
+2. **Qualifica** com Ollama Cloud (modelos `gemma4:31b-cloud` / `kimi-k2.5:cloud`).
 3. Permite que o usuário **selecione** os leads desejados.
 4. **Envia** os leads selecionados diretamente para a tabela `public.leads` do Nexus AI, entrando no status `triagem`.
 
@@ -17,29 +17,42 @@ projects/nexos-eye/
 ├── integrations/
 │   └── lead-miner/          ← LEAD-Minner integrado
 │       ├── src/lib/nexus-bridge.ts   ← ponte com Supabase
-│       ├── server.ts                   ← rotas de API
-│       ├── src/App.tsx                 ← UI de seleção/envio
+│       ├── src/lib/ollama-qualifier.ts  ← qualificação via Ollama
+│       ├── api/index.ts              ← entrypoint Vercel (Express bundle)
+│       ├── server.ts                 ← servidor local/dev
+│       ├── src/App.tsx               ← UI de seleção/envio
 │       ├── src/components/LeadsTable.tsx
-│       └── .env                        ← credenciais
+│       └── .env                      ← credenciais (não commitar)
 ├── supabase/migrations/     ← schema do Nexus
 └── src/                     ← CRM Nexus
 ```
 
 ## Endpoints Adicionados
 
-- `GET /api/nexus/health` — Verifica se a conexão com o Supabase do Nexus está configurada.
-- `POST /api/leads/export-to-nexus` — Recebe um array de `leadIds` e insere os leads na tabela `public.leads` do Nexus.
+- `GET /api/health` — Verifica configuração de Ollama e Google Maps.
+- `GET /api/nexus/health` — Verifica conexão com o Supabase do Nexus.
+- `POST /api/leads/export-to-nexus` — Recebe array de `leadIds` e insere na tabela `public.leads`.
+
+## URLs de Produção
+
+- **Aplicativo:** `https://lead-miner-seven.vercel.app`
+- **Vercel Project:** `marrocs-projects/lead-miner`
 
 ## Variáveis de Ambiente
 
 Adicionadas em `.env`:
 
 ```
+GOOGLE_MAPS_API_KEY="..."
+OLLAMA_CLOUD_API_KEY="..."          # chave da Ollama Cloud
+OLLAMA_MODEL="gemma4:31b-cloud"
+OLLAMA_FALLBACK_MODEL="kimi-k2.5:cloud"
+
 NEXUS_SUPABASE_URL="https://jifjcajdzpwqttgkswyp.supabase.co"
-NEXUS_SUPABASE_SERVICE_KEY="<service_role_key>"
+NEXUS_SUPABASE_SERVICE_KEY="..."
 ```
 
-> Atenção: a `service_role` key nunca deve ser commitada. Ela só é usada no backend.
+> Atenção: a `service_role` key e a `OLLAMA_CLOUD_API_KEY` nunca devem ser commitadas. Elas só são usadas no backend.
 
 ## Mapeamento de Campos
 
@@ -64,14 +77,14 @@ NEXUS_SUPABASE_SERVICE_KEY="<service_role_key>"
    cd projects/nexos-eye/integrations/lead-miner
    ```
 
-2. Instalar dependências (já feito):
+2. Instalar dependências:
    ```bash
    npm install
    ```
 
-3. Configurar `.env` com `GOOGLE_MAPS_API_KEY`, `GEMINI_API_KEY` e `NEXUS_SUPABASE_SERVICE_KEY`.
+3. Configurar `.env` com as chaves.
 
-4. Rodar o servidor:
+4. Rodar localmente:
    ```bash
    npm run dev
    ```
@@ -86,15 +99,28 @@ NEXUS_SUPABASE_SERVICE_KEY="<service_role_key>"
 
 9. Os leads aparecerão automaticamente na triagem do Nexus AI CRM.
 
-## Teste Realizado
+## Deploy
 
-Data: 2026-08-25
-Lead enviado: `Villa Paraiso Papagayo` (Guanacaste, Costa Rica)
-ID no Nexus: `33cc48bf-c148-428e-8657-c647dc958643`
-Status: `triagem` | Prioridade: `high`
+```bash
+cd projects/nexos-eye/integrations/lead-miner
+vercel --prod
+```
+
+Build local:
+```bash
+npm run build
+```
+
+## Testes Realizados
+
+- Data: 2026-08-25
+- Deploy: `https://lead-miner-seven.vercel.app`
+- Busca Google Places: ✅ retorna 20 leads reais de Tulum.
+- Exportação para Nexus: ✅ lead "Islamorada Coral Villa Club" inserido com sucesso.
 
 ## Próximos Passos Sugeridos
 
-1. Expandir a constraint `source` do Nexus para aceitar valores como `'lead-miner'`, `'eye-landing'`, `'manual'`, etc.
-2. Adicionar campos novos no schema do Nexus para capturar metadados ricos do LEAD-Minner (ex: `maps_url`, `google_rating`, `pain_point`, `estimated_loss`).
-3. Criar um job automático/heartbeat para minerar hubs periodicamente.
+1. Adicionar `OLLAMA_CLOUD_API_KEY` na Vercel para ativar qualificação por IA.
+2. Expandir a constraint `source` do Nexus para aceitar valores como `'lead-miner'`.
+3. Adicionar campos novos no schema do Nexus para capturar metadados ricos do LEAD-Minner.
+4. Criar job automático/heartbeat para minerar hubs periodicamente.
